@@ -1,14 +1,28 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/login";
-import Home from "../pages/home.jsx";
+import Home from "../pages/home";
+import Credentials from "../pages/credentials";
 
 const AppRouter = ({ userRole, setUserRole }) => {
-  const isAuthenticated = !!userRole;
+  const token = localStorage.getItem("token");
+  const isAuthenticated = !!token;
 
   return (
     <Routes>
-      <Route path="/login" element={<Login setUserRole={setUserRole} />} />
+      {/* Login */}
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/home" replace />
+          ) : (
+            <Login setUserRole={setUserRole} />
+          )
+        }
+      />
+
+      {/* Home protegida */}
       <Route
         path="/home"
         element={
@@ -19,6 +33,20 @@ const AppRouter = ({ userRole, setUserRole }) => {
           )
         }
       />
+
+      {/* Credenciales protegidas */}
+      <Route
+        path="/credentials/:id"
+        element={
+          isAuthenticated ? (
+            <Credentials userRole={userRole} />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      {/* Cualquier otra ruta redirige al login */}
       <Route path="/*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

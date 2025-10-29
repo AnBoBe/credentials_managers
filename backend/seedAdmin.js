@@ -1,30 +1,38 @@
-import { initDB } from "./db.js";
+// backend/seedAdmin.js
 import bcrypt from "bcryptjs";
-import dotenv from "dotenv";
+import sequelize from "./database/database.js";
+import User from "./models/user.js";
 
-dotenv.config();
+const seedAdmin = async () => {
+  try {
+    // Sincronizar los modelos con la base de datos
+    await sequelize.sync({ alter: true });
 
-const run = async () => {
-  const db = await initDB();
-  const email = "admin@local";
-  const exists = await db.get("SELECT * FROM users WHERE email = ?", [email]);
-  if (exists) {
-    console.log("Admin ya existe:", exists.email);
-    process.exit(0);
+    // Verificar si ya existe un admin
+    const adminExistente = await User.findOne({ where: { email: "admin@local" } });
+
+    if (!adminExistente) {
+      const hashedPassword = await bcrypt.hash("admin123", 10);
+
+      await User.create({
+        nombre: "Administrador",
+        email: "admin@local",
+        password: hashedPassword,
+        pw: "0000", // Indicativo inicial del admin
+        rol: "admin",
+        img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      });
+
+      console.log("Usuario administrador creado exitosamente.");
+    } else {
+      console.log("El usuario admin ya existe. No se creó uno nuevo.");
+    }
+
+    process.exit();
+  } catch (error) {
+    console.error("Error al crear el usuario admin:", error);
+    process.exit(1);
   }
-
-  const hashed = await bcrypt.hash("admin123", 10);
-  await db.run("INSERT INTO users (nombre, email, password, rol) VALUES (?, ?, ?, ?)", [
-    "Administrador",
-    email,
-    hashed,
-    "admin",
-  ]);
-  console.log("Admin creado: ", email, " / password: admin123");
-  process.exit(0);
 };
 
-run().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+seedAdmin();

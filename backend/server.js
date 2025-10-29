@@ -1,24 +1,24 @@
 // backend/server.js
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import usersRouter from "./routes/user.js";
-
-dotenv.config();
+import sequelize from "./database/database.js";
+import userRoutes from "./routes/user.js";
+import User from "./models/user.js";
 
 const app = express();
-const PORT = process.env.PORT || 4000;
-
-app.use(cors()); // permite llamadas desde cualquier origen; en LAN está bien
+app.use(cors());
 app.use(express.json());
 
 // Rutas
-app.use("/api/users", usersRouter);
+app.use("/api/user", userRoutes);
 
-app.get("/", (req, res) => {
-  res.json({ message: "API activa. Usa /api/users" });
-});
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
-});
+// Sincronizar DB y arrancar servidor
+sequelize
+  .sync()
+  .then(() => {
+    console.log("Base de datos sincronizada correctamente.");
+    app.listen(4000, "0.0.0.0", () => {
+      console.log("Servidor escuchando en http://localhost:4000");
+    });
+  })
+  .catch((err) => console.error("Error al conectar con la DB:", err));

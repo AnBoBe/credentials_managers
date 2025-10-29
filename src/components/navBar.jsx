@@ -1,50 +1,32 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const NavBar = ({ userRole, setUserRole }) => {
-  const location = useLocation();
+const NavBar = ({ setUserRole }) => {
   const navigate = useNavigate();
-  const isLoginPage = location.pathname === "/login";
 
   const handleLogout = () => {
-    setUserRole(null);
-    navigate("/login");
+    // Elimina el token y el rol guardados
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
+
+    // Limpia el estado global de rol
+    if (setUserRole) setUserRole("");
+
+    // Redirige al login
+    navigate("/login", { replace: true });
   };
 
   return (
-    <header className="text-gray-600 body-font bg-red-700">
-      <div className="container mx-auto flex flex-wrap p-8 flex-col md:flex-row items-center">
-        <a
-          href={userRole ? "/home" : "/login"}
-          className="flex title-font font-medium items-center text-gray-900 mb-3 md:mb-0"
-        >
-          <span className="text-2xl text-white font-serif italic">
-            MediaMakers
-          </span>
-        </a>
+    <nav className="flex justify-between items-center bg-gray-800 text-white px-6 py-3 shadow-md">
+      <h1 className="text-lg font-semibold">Panel Principal</h1>
 
-        {!isLoginPage && userRole && (
-          <div className="ml-auto flex items-center space-x-4">
-            <span className="text-white italic">
-              Rol:{" "}
-              <span
-                className={
-                  userRole === "admin" ? "text-gold font-bold" : "text-gray-300"
-                }
-              >
-                {userRole}
-              </span>
-            </span>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center text-white bg-red-500 border-0 py-2 px-5 focus:outline-none hover:bg-red-600 rounded transition-all"
-            >
-              Cerrar sesión
-            </button>
-          </div>
-        )}
-      </div>
-    </header>
+      <button
+        onClick={handleLogout}
+        className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md transition-colors"
+      >
+        Cerrar sesión
+      </button>
+    </nav>
   );
 };
 
