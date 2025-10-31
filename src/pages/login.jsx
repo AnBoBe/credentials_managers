@@ -5,13 +5,13 @@ import Footer from "../components/footer";
 
 const Login = ({ setUserRole }) => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");             // nuevo estado para PW
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // Mantener sesión al recargar
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (token) {
       try {
         const tokenParts = token.split(".");
@@ -19,7 +19,6 @@ const Login = ({ setUserRole }) => {
         setUserRole(payload.rol);
         localStorage.setItem("userRole", payload.rol);
 
-        // Solo redirige si estás en /login
         if (window.location.pathname === "/login") {
           navigate("/home");
         }
@@ -35,39 +34,46 @@ const Login = ({ setUserRole }) => {
     e.preventDefault();
     setError("");
 
+    if (!pw || !password) {
+      setError("PW y contraseña son obligatorios");
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:4000/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ pw, password }), // enviar pw + password
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al iniciar sesión");
+      if (!res.ok) throw new Error(data.error || "Error en el login");
 
-      // Guardar token
+      if (data.mustChangePassword) {
+        setError(data.message);
+        return;
+      }
+
       localStorage.setItem("token", data.token);
 
-      // Decodificar el token para extraer el rol
       const tokenParts = data.token.split(".");
       const payload = JSON.parse(atob(tokenParts[1]));
       const role = payload.rol;
 
-      // Guardar rol
       localStorage.setItem("userRole", role);
       setUserRole(role);
 
-      // Redirigir al home
       navigate("/home");
     } catch (err) {
-      console.error(err);
+      console.error("Error en login:", err);
       setError(err.message || "Error al iniciar sesión");
     }
   };
 
   return (
     <>
-      <NavBar />
+      {token && <NavBar />}
+
       <section className="text-gray-600 body-font bg-bgb min-h-screen flex items-center justify-center">
         <div className="container px-5 py-24 mx-auto flex flex-wrap items-center">
           <div className="lg:w-3/5 md:w-1/2 md:pr-16 lg:pr-0 pr-0">
@@ -85,15 +91,15 @@ const Login = ({ setUserRole }) => {
             </h2>
 
             <div className="relative mb-4">
-              <label htmlFor="email" className="leading-7 text-sm text-gray-600">
-                Correo
+              <label htmlFor="pw" className="leading-7 text-sm text-gray-600">
+                PW
               </label>
               <input
-                type="email"
-                id="email"
-                name="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                id="pw"
+                name="pw"
+                value={pw}
+                onChange={(e) => setPw(e.target.value)}
                 className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
               />
             </div>
@@ -123,12 +129,12 @@ const Login = ({ setUserRole }) => {
 
             <p className="text-xs text-gray-500 mt-3">
               Prueba con:
-              <span className="block">PW / y tu cedula</span>
-              
+              <span className="block">PW / y tu cédula</span>
             </p>
           </div>
         </div>
       </section>
+
       <Footer />
     </>
   );

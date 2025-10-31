@@ -99,7 +99,8 @@ const Home = ({ userRole, setUserRole }) => {
     if (!window.confirm("¿Seguro que quieres eliminar este usuario?")) return;
     // call backend DELETE (needs auth)
     try {
-      await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:4000"}/api/users/${id}`, {
+     await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:4000"}/api/user/${id}`, {
+
         method: "DELETE",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
@@ -135,51 +136,39 @@ const Home = ({ userRole, setUserRole }) => {
   };
 
   const submitCreate = async () => {
-    setError("");
-    // minimal validation
-    if (!form.nombre || !form.email || !form.password) {
-      setError("Nombre, correo y contraseña son obligatorios");
-      return;
-    }
-    setCreating(true);
-    try {
-      // We will include password as pw in meta so frontend shows pw in cards
-      const payload = {
-        nombre: form.nombre,
-        email: form.email,
-        password: form.password,
-        rol: form.rol,
-        meta: {
-          pw: form.password, // duplication for easy access
-          ...form.meta
-        }
-      };
-      await createUser(payload);
-      // refresh list
-      await loadUsers();
-      setShowCreate(false);
-      // reset form lightly
-      setForm({
-        nombre: "",
-        email: "",
-        password: "",
-        rol: "user",
-        meta: {
-          tradeeu: { teams: "", correo: "", contraseña: "" },
-          DID_Voiso: { correo: "", contraseña: "" },
-          Voicespin: { agent: "", ext: "", secret_extension: "" },
-          omni: { usuario: "", contraseña: "" },
-          ALGOBI: { teams: "", correo: "", contraseña: "", DID_Voiso: { correo: "", contraseña: "" }, omni: { usuario: "", contraseña: "" } },
-          CAPITALIX: { teams: "", correo: "", contraseña: "", DID_Voiso: { correo: "", contraseña: "" }, Voicespin: { agent: "", ext: "", secret_extension: "" }, omni: { usuario: "", contraseña: "" } }
-        }
-      });
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Error al crear usuario");
-    } finally {
-      setCreating(false);
-    }
-  };
+  setError("");
+  if (!form.nombre || !form.email || !form.password) {
+    setError("Nombre, correo y contraseña son obligatorios");
+    return;
+  }
+  setCreating(true);
+  try {
+    const payload = {
+      nombre: form.nombre,
+      email: form.email,
+      password: form.password,
+      rol: form.rol,
+      pw: form.pw, // directo al backend
+    };
+
+    await createUser(payload);
+    await loadUsers();
+    setShowCreate(false);
+    setForm({
+      nombre: "",
+      email: "",
+      password: "",
+      rol: "user",
+      pw: "",
+      meta: { ...form.meta },
+    });
+  } catch (err) {
+    console.error(err);
+    setError(err.message || "Error al crear usuario");
+  } finally {
+    setCreating(false);
+  }
+};
 
 
  
@@ -263,6 +252,17 @@ const handleLogout = () => {
                 <input value={form.password} onChange={e => handleFormChange("password", e.target.value)} className="w-full border px-2 py-1 rounded" />
               </div>
               <div>
+  <label className="block text-sm font-medium">PW</label>
+  <input
+    placeholder="Ej: 0019245 (dejar vacío para generar uno)"
+    value={form.pw}
+    onChange={e => handleFormChange("pw", e.target.value)}
+    className="border px-2 py-1 rounded w-full"
+  />
+</div>
+
+
+              <div>
                 <label className="block text-sm">Rol</label>
                 <select value={form.rol} onChange={e => handleFormChange("rol", e.target.value)} className="w-full border px-2 py-1 rounded">
                   <option value="user">user</option>
@@ -274,101 +274,101 @@ const handleLogout = () => {
             <hr className="my-4" />
 
             {/* Secciones estáticas solicitadas (mostradas como H2 quemado + campos editables) */}
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">tradeeu</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                  <input placeholder="teams" value={form.meta.tradeeu.teams} onChange={e => handleFormChange("meta.tradeeu.teams", e.target.value)} className="border px-2 py-1 rounded" />
-                  <input placeholder="correo" value={form.meta.tradeeu.correo} onChange={e => handleFormChange("meta.tradeeu.correo", e.target.value)} className="border px-2 py-1 rounded" />
-                  <input placeholder="contraseña" value={form.meta.tradeeu.contraseña} onChange={e => handleFormChange("meta.tradeeu.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
-                </div>
-              </div>
+          <div className="space-y-4">
+  <div>
+    <h3 className="text-lg font-semibold">tradeeu</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+      <h4 className="font-medium">teams</h4>
+      <input placeholder="correo" value={form.meta.tradeeu.correo} onChange={e => handleFormChange("meta.tradeeu.correo", e.target.value)} className="border px-2 py-1 rounded" />
+      <input placeholder="contraseña" value={form.meta.tradeeu.contraseña} onChange={e => handleFormChange("meta.tradeeu.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
+    </div>
+  </div>
 
-              <div>
-                <h3 className="text-lg font-semibold">DID (Voiso)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                  <input placeholder="correo" value={form.meta.DID_Voiso.correo} onChange={e => handleFormChange("meta.DID_Voiso.correo", e.target.value)} className="border px-2 py-1 rounded" />
-                  <input placeholder="contraseña" value={form.meta.DID_Voiso.contraseña} onChange={e => handleFormChange("meta.DID_Voiso.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
-                </div>
-              </div>
+  <div>
+    <h3 className="text-lg font-semibold">DID (Voiso)</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+      <input placeholder="correo" value={form.meta.DID_Voiso.correo} onChange={e => handleFormChange("meta.DID_Voiso.correo", e.target.value)} className="border px-2 py-1 rounded" />
+      <input placeholder="contraseña" value={form.meta.DID_Voiso.contraseña} onChange={e => handleFormChange("meta.DID_Voiso.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
+    </div>
+  </div>
 
-              <div>
-                <h3 className="text-lg font-semibold">Voicespin</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-                  <input placeholder="agent" value={form.meta.Voicespin.agent} onChange={e => handleFormChange("meta.Voicespin.agent", e.target.value)} className="border px-2 py-1 rounded" />
-                  <input placeholder="ext" value={form.meta.Voicespin.ext} onChange={e => handleFormChange("meta.Voicespin.ext", e.target.value)} className="border px-2 py-1 rounded" />
-                  <input placeholder="secret extension" value={form.meta.Voicespin.secret_extension} onChange={e => handleFormChange("meta.Voicespin.secret_extension", e.target.value)} className="border px-2 py-1 rounded" />
-                </div>
-              </div>
+  <div>
+    <h3 className="text-lg font-semibold">Voicespin</h3>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+      <input placeholder="agent" value={form.meta.Voicespin.agent} onChange={e => handleFormChange("meta.Voicespin.agent", e.target.value)} className="border px-2 py-1 rounded" />
+      <input placeholder="ext" value={form.meta.Voicespin.ext} onChange={e => handleFormChange("meta.Voicespin.ext", e.target.value)} className="border px-2 py-1 rounded" />
+      <input placeholder="secret extension" value={form.meta.Voicespin.secret_extension} onChange={e => handleFormChange("meta.Voicespin.secret_extension", e.target.value)} className="border px-2 py-1 rounded" />
+    </div>
+  </div>
 
-              <div>
-                <h3 className="text-lg font-semibold">omni</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                  <input placeholder="usuario" value={form.meta.omni.usuario} onChange={e => handleFormChange("meta.omni.usuario", e.target.value)} className="border px-2 py-1 rounded" />
-                  <input placeholder="contraseña" value={form.meta.omni.contraseña} onChange={e => handleFormChange("meta.omni.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
-                </div>
-              </div>
+  <div>
+    <h3 className="text-lg font-semibold">omni</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+      <input placeholder="usuario" value={form.meta.omni.usuario} onChange={e => handleFormChange("meta.omni.usuario", e.target.value)} className="border px-2 py-1 rounded" />
+      <input placeholder="contraseña" value={form.meta.omni.contraseña} onChange={e => handleFormChange("meta.omni.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
+    </div>
+  </div>
 
-              <div>
-                <h3 className="text-lg font-semibold">ALGOBI</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                  <input placeholder="teams" value={form.meta.ALGOBI.teams} onChange={e => handleFormChange("meta.ALGOBI.teams", e.target.value)} className="border px-2 py-1 rounded" />
-                  <input placeholder="correo" value={form.meta.ALGOBI.correo} onChange={e => handleFormChange("meta.ALGOBI.correo", e.target.value)} className="border px-2 py-1 rounded" />
-                  <input placeholder="contraseña" value={form.meta.ALGOBI.contraseña} onChange={e => handleFormChange("meta.ALGOBI.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
-                </div>
+  <div>
+    <h3 className="text-lg font-semibold">ALGOBI</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+      <h4 className="font-medium">teams</h4>
+      <input placeholder="correo" value={form.meta.ALGOBI.correo} onChange={e => handleFormChange("meta.ALGOBI.correo", e.target.value)} className="border px-2 py-1 rounded" />
+      <input placeholder="contraseña" value={form.meta.ALGOBI.contraseña} onChange={e => handleFormChange("meta.ALGOBI.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
+    </div>
 
-                <div className="mt-2">
-                  <h4 className="font-medium">DID (Voiso)</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                    <input placeholder="correo" value={form.meta.ALGOBI.DID_Voiso.correo} onChange={e => handleFormChange("meta.ALGOBI.DID_Voiso.correo", e.target.value)} className="border px-2 py-1 rounded" />
-                    <input placeholder="contraseña" value={form.meta.ALGOBI.DID_Voiso.contraseña} onChange={e => handleFormChange("meta.ALGOBI.DID_Voiso.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
-                  </div>
-                </div>
+    <div className="mt-2">
+      <h4 className="font-medium">DID (Voiso)</h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+        <input placeholder="correo" value={form.meta.ALGOBI.DID_Voiso.correo} onChange={e => handleFormChange("meta.ALGOBI.DID_Voiso.correo", e.target.value)} className="border px-2 py-1 rounded" />
+        <input placeholder="contraseña" value={form.meta.ALGOBI.DID_Voiso.contraseña} onChange={e => handleFormChange("meta.ALGOBI.DID_Voiso.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
+      </div>
+    </div>
 
-                <div className="mt-2">
-                  <h4 className="font-medium">omni</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                    <input placeholder="usuario" value={form.meta.ALGOBI.omni.usuario} onChange={e => handleFormChange("meta.ALGOBI.omni.usuario", e.target.value)} className="border px-2 py-1 rounded" />
-                    <input placeholder="contraseña" value={form.meta.ALGOBI.omni.contraseña} onChange={e => handleFormChange("meta.ALGOBI.omni.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
-                  </div>
-                </div>
-              </div>
+    <div className="mt-2">
+      <h4 className="font-medium">omni</h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+        <input placeholder="usuario" value={form.meta.ALGOBI.omni.usuario} onChange={e => handleFormChange("meta.ALGOBI.omni.usuario", e.target.value)} className="border px-2 py-1 rounded" />
+        <input placeholder="contraseña" value={form.meta.ALGOBI.omni.contraseña} onChange={e => handleFormChange("meta.ALGOBI.omni.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
+      </div>
+    </div>
+  </div>
 
-              {/* CAPITALIX optional block – only included if filled */}
-              <div>
-                <h3 className="text-lg font-semibold">CAPITALIX (opcional)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                  <input placeholder="teams" value={form.meta.CAPITALIX.teams} onChange={e => handleFormChange("meta.CAPITALIX.teams", e.target.value)} className="border px-2 py-1 rounded" />
-                  <input placeholder="correo" value={form.meta.CAPITALIX.correo} onChange={e => handleFormChange("meta.CAPITALIX.correo", e.target.value)} className="border px-2 py-1 rounded" />
-                  <input placeholder="contraseña" value={form.meta.CAPITALIX.contraseña} onChange={e => handleFormChange("meta.CAPITALIX.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
-                </div>
+  <div>
+    <h3 className="text-lg font-semibold">CAPITALIX (opcional)</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+      <h4 className="font-medium">teams</h4>
+      <input placeholder="correo" value={form.meta.CAPITALIX.correo} onChange={e => handleFormChange("meta.CAPITALIX.correo", e.target.value)} className="border px-2 py-1 rounded" />
+      <input placeholder="contraseña" value={form.meta.CAPITALIX.contraseña} onChange={e => handleFormChange("meta.CAPITALIX.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
+    </div>
 
-                <div className="mt-2">
-                  <h4 className="font-medium">DID (Voiso)</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                    <input placeholder="correo" value={form.meta.CAPITALIX.DID_Voiso.correo} onChange={e => handleFormChange("meta.CAPITALIX.DID_Voiso.correo", e.target.value)} className="border px-2 py-1 rounded" />
-                    <input placeholder="contraseña" value={form.meta.CAPITALIX.DID_Voiso.contraseña} onChange={e => handleFormChange("meta.CAPITALIX.DID_Voiso.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
-                  </div>
-                </div>
+    <div className="mt-2">
+      <h4 className="font-medium">DID (Voiso)</h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+        <input placeholder="correo" value={form.meta.CAPITALIX.DID_Voiso.correo} onChange={e => handleFormChange("meta.CAPITALIX.DID_Voiso.correo", e.target.value)} className="border px-2 py-1 rounded" />
+        <input placeholder="contraseña" value={form.meta.CAPITALIX.DID_Voiso.contraseña} onChange={e => handleFormChange("meta.CAPITALIX.DID_Voiso.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
+      </div>
+    </div>
 
-                <div className="mt-2">
-                  <h4 className="font-medium">Voicespin</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-                    <input placeholder="agent" value={form.meta.CAPITALIX.Voicespin.agent} onChange={e => handleFormChange("meta.CAPITALIX.Voicespin.agent", e.target.value)} className="border px-2 py-1 rounded" />
-                    <input placeholder="ext" value={form.meta.CAPITALIX.Voicespin.ext} onChange={e => handleFormChange("meta.CAPITALIX.Voicespin.ext", e.target.value)} className="border px-2 py-1 rounded" />
-                    <input placeholder="secret extension" value={form.meta.CAPITALIX.Voicespin.secret_extension} onChange={e => handleFormChange("meta.CAPITALIX.Voicespin.secret_extension", e.target.value)} className="border px-2 py-1 rounded" />
-                  </div>
-                </div>
+    <div className="mt-2">
+      <h4 className="font-medium">Voicespin</h4>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+        <input placeholder="agent" value={form.meta.CAPITALIX.Voicespin.agent} onChange={e => handleFormChange("meta.CAPITALIX.Voicespin.agent", e.target.value)} className="border px-2 py-1 rounded" />
+        <input placeholder="ext" value={form.meta.CAPITALIX.Voicespin.ext} onChange={e => handleFormChange("meta.CAPITALIX.Voicespin.ext", e.target.value)} className="border px-2 py-1 rounded" />
+        <input placeholder="secret extension" value={form.meta.CAPITALIX.Voicespin.secret_extension} onChange={e => handleFormChange("meta.CAPITALIX.Voicespin.secret_extension", e.target.value)} className="border px-2 py-1 rounded" />
+      </div>
+    </div>
 
-                <div className="mt-2">
-                  <h4 className="font-medium">omni</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                    <input placeholder="usuario" value={form.meta.CAPITALIX.omni.usuario} onChange={e => handleFormChange("meta.CAPITALIX.omni.usuario", e.target.value)} className="border px-2 py-1 rounded" />
-                    <input placeholder="contraseña" value={form.meta.CAPITALIX.omni.contraseña} onChange={e => handleFormChange("meta.CAPITALIX.omni.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div className="mt-2">
+      <h4 className="font-medium">omni</h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+        <input placeholder="usuario" value={form.meta.CAPITALIX.omni.usuario} onChange={e => handleFormChange("meta.CAPITALIX.omni.usuario", e.target.value)} className="border px-2 py-1 rounded" />
+        <input placeholder="contraseña" value={form.meta.CAPITALIX.omni.contraseña} onChange={e => handleFormChange("meta.CAPITALIX.omni.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
+      </div>
+    </div>
+  </div>
+</div>
+
 
             {error && <p className="text-red-600 mt-3">{error}</p>}
 

@@ -1,38 +1,38 @@
 // backend/seedAdmin.js
 import bcrypt from "bcryptjs";
-import sequelize from "./database/database.js";
 import User from "./models/user.js";
+import sequelize from "./config/db.js";
 
-const seedAdmin = async () => {
+async function seedAdmin() {
   try {
-    // Sincronizar los modelos con la base de datos
-    await sequelize.sync({ alter: true });
+    await sequelize.sync(); // Asegura que las tablas existan
 
-    // Verificar si ya existe un admin
-    const adminExistente = await User.findOne({ where: { email: "admin@local" } });
-
-    if (!adminExistente) {
-      const hashedPassword = await bcrypt.hash("admin123", 10);
-
-      await User.create({
-        nombre: "Administrador",
-        email: "admin@local",
-        password: hashedPassword,
-        pw: "0000", // Indicativo inicial del admin
-        rol: "admin",
-        img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-      });
-
-      console.log("Usuario administrador creado exitosamente.");
-    } else {
-      console.log("El usuario admin ya existe. No se creó uno nuevo.");
+    // Verifica si ya existe un admin
+    const existingAdmin = await User.findOne({ where: { pw: "0000" } });
+    if (existingAdmin) {
+      console.log("El usuario admin ya existe.");
+      return;
     }
 
-    process.exit();
+    const hashedPassword = await bcrypt.hash("admin123", 10);
+
+    await User.create({
+      nombre: "Administrador",
+      email: "admin@local.com", // formato válido, pero no se usa en login
+      password: hashedPassword,
+      rol: "admin",
+      pw: "0000", // el consecutivo que usará para loguearse
+      mustChangePassword: true, // fuerza cambio en el primer login
+    });
+
+    console.log("Usuario admin creado correctamente:");
+    console.log("PW: 0000");
+    console.log("Contraseña inicial: admin123");
   } catch (error) {
     console.error("Error al crear el usuario admin:", error);
-    process.exit(1);
+  } finally {
+    await sequelize.close();
   }
-};
+}
 
 seedAdmin();

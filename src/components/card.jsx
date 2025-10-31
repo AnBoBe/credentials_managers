@@ -1,39 +1,54 @@
 import React from "react";
 
-const Card = ({ user, userRole, handleDelete, handleGo }) => (
-  <div className="p-4 lg:w-1/4 md:w-1/2">
-    <div className="h-full flex flex-col items-center text-center bg-white rounded-xl border border-gray-200 shadow hover:shadow-lg transition-all relative">
-      {userRole === "admin" && (
-        <button
-          onClick={() => handleDelete(user.id)}
-          className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold"
-          title="Eliminar usuario"
-        >
-          X
-        </button>
-      )}
+export default function Card({ user, onDelete }) {
+  const handleDelete = async () => {
+    if (!confirm(`¿Eliminar usuario ${user.nombre}?`)) return;
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:4000"}/api/user/${user.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (onDelete) onDelete();
+    } catch (err) {
+      console.error("Error eliminando usuario:", err);
+      alert("Error al eliminar usuario");
+    }
+  };
 
+  return (
+    <div className="border rounded-xl shadow-md p-4 text-center relative bg-white hover:shadow-lg transition">
+      {currentUser?.rol === "admin" && (
+  <button
+    onClick={handleDelete}
+    className="absolute top-1 right-2 text-red-500 font-bold text-lg hover:text-red-700"
+  >
+    ×
+  </button>
+)}
+
+      {/* Imagen */}
       <img
+        src={user.img || "/logo.png"}
         alt={user.nombre}
-        className="flex-shrink-0 rounded-lg w-full h-56 object-cover object-center mb-4 border border-gray-300"
-        src={user.img}
+        className="w-full h-32 object-contain mb-3"
       />
 
-      <div className="w-full px-2 pb-4">
-        <h2 className="title-font font-medium text-lg text-gray-900">{user.nombre}</h2>
-        <h3 className="text-gray-500 mb-3">PW: {user.pw}</h3>
+      {/* Nombre */}
+      <h3 className="text-lg font-semibold capitalize">{user.nombre}</h3>
 
-        <div className="flex justify-center gap-3 mt-3">
-          <button
-            onClick={() => handleGo(user)}
-            className="text-white bg-indigo-500 hover:bg-indigo-600 border-0 py-1 px-4 rounded text-sm transition-all"
-          >
-            Ir
-          </button>
-        </div>
-      </div>
+      {/* Campo PW */}
+      <p className="text-sm text-gray-700 mt-1">
+        <span className="font-semibold">PW:</span>{" "}
+        {user.pw && user.pw.trim() !== "" ? user.pw : "No asignado"}
+      </p>
+
+      {/* Botón Ir */}
+      <button
+        onClick={() => (window.location.href = `/credentials/${user.id}`)}
+        className="mt-3 bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700 transition"
+      >
+        Ir
+      </button>
     </div>
-  </div>
-);
-
-export default Card;
+  );
+}

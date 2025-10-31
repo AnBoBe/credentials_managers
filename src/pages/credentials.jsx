@@ -15,7 +15,7 @@ const Credentials = ({ userRole }) => {
     const load = async () => {
       try {
         const data = await fetchUserById(id);
-        // backend returns fields nombre,email,rol,meta
+        // backend retorna los campos nombre,email,rol,meta
         setUser({
           ...data,
           img: mmlogo,
@@ -37,7 +37,7 @@ const Credentials = ({ userRole }) => {
   if (!user) return <div className="p-6">Usuario no encontrado</div>;
 
   const showBlock = (obj) => {
-    // returns true if any value non-empty
+    // retorna true si no está vacío
     if (!obj) return false;
     return Object.values(obj).some(v => typeof v === "string" ? v.trim() !== "" : (v && typeof v === "object" && showBlock(v)));
   };
@@ -56,7 +56,7 @@ const Credentials = ({ userRole }) => {
             </div>
           </div>
 
-          {/* Iterate groups and render only if data exists */}
+          {/* Itera los grupos y renderiza solo si existen datos. */}
           <div className="space-y-4">
             {showBlock(user.meta?.tradeeu) && (
               <section className="p-3 border rounded">
@@ -107,7 +107,7 @@ const Credentials = ({ userRole }) => {
             {showBlock(user.meta?.CAPITALIX) && (
               <section className="p-3 border rounded">
                 <h3 className="font-bold">CAPITALIX</h3>
-                {/* render only non-empty */}
+                {/* solo renderiza si no esta vacio */}
                 {user.meta.CAPITALIX.teams && <p>teams: {user.meta.CAPITALIX.teams}</p>}
                 {user.meta.CAPITALIX.correo && <p>correo: {user.meta.CAPITALIX.correo}</p>}
                 {user.meta.CAPITALIX.contraseña && <p>contraseña: {user.meta.CAPITALIX.contraseña}</p>}
