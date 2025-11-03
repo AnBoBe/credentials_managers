@@ -22,7 +22,7 @@ async function seedAdmin() {
       password: hashedPassword,
       rol: "admin",
       pw: "0000", // el consecutivo que usará para loguearse
-      mustChangePassword: true, // fuerza cambio en el primer login
+      // mustChangePassword: true, // fuerza cambio en el primer login
     });
 
     console.log("Usuario admin creado correctamente:");

@@ -15,11 +15,29 @@ const Credentials = ({ userRole }) => {
     const load = async () => {
       try {
         const data = await fetchUserById(id);
-        // backend retorna los campos nombre,email,rol,meta
+
+        let meta = data.meta;
+        if (typeof meta === "string") {
+          try {
+            meta = JSON.parse(meta);
+          } catch {
+            console.warn("No se pudo parsear meta como JSON");
+            meta = {};
+          }
+        }
+
+        // Asegura estructura base
+        const normalizedMeta = {
+          tradeeu: meta.tradeeu || {},
+          ALGOBI: meta.ALGOBI || {},
+          CAPITALIX: meta.CAPITALIX || {}
+        };
+
         setUser({
           ...data,
           img: mmlogo,
-          pw: data.meta?.pw || ""
+          meta: normalizedMeta,
+          pw: data.pw || ""
         });
       } catch (err) {
         console.error(err);
@@ -29,6 +47,7 @@ const Credentials = ({ userRole }) => {
         setLoading(false);
       }
     };
+
     load();
     // eslint-disable-next-line
   }, [id]);
@@ -36,19 +55,40 @@ const Credentials = ({ userRole }) => {
   if (loading) return <div className="p-6">Cargando...</div>;
   if (!user) return <div className="p-6">Usuario no encontrado</div>;
 
-  const showBlock = (obj) => {
-    // retorna true si no está vacío
-    if (!obj) return false;
-    return Object.values(obj).some(v => typeof v === "string" ? v.trim() !== "" : (v && typeof v === "object" && showBlock(v)));
+  const { meta } = user;
+
+  const renderData = (obj) => {
+    if (!obj || Object.keys(obj).length === 0)
+      return <p className="text-gray-400 text-sm">Sin datos</p>;
+
+    return Object.entries(obj).map(([key, value]) => {
+      if (typeof value === "object" && value !== null) {
+        return (
+          <div key={key} className="ml-2 mt-2 border-l pl-2">
+            <p className="font-semibold text-gray-800">{key}:</p>
+            {renderData(value)}
+          </div>
+        );
+      }
+      return (
+        <p key={key} className="text-sm">
+          <span className="font-medium">{key}:</span> {value || "-"}
+        </p>
+      );
+    });
   };
 
   return (
     <>
       <NavBar userRole={userRole} />
       <main className="min-h-screen bg-darkgray text-black p-6">
-        <div className="max-w-4xl mx-auto bg-white rounded-lg p-6 shadow">
-          <div className="flex items-center gap-4 mb-4">
-            <img src={user.img} alt={user.nombre} className="w-24 h-24 object-cover rounded" />
+        <div className="max-w-6xl mx-auto bg-white rounded-lg p-6 shadow">
+          <div className="flex items-center gap-4 mb-6">
+            <img
+              src={user.img}
+              alt={user.nombre}
+              className="w-24 h-24 object-cover rounded"
+            />
             <div>
               <h2 className="text-2xl font-bold">{user.nombre}</h2>
               <p className="text-sm text-gray-600">{user.email}</p>
@@ -56,63 +96,43 @@ const Credentials = ({ userRole }) => {
             </div>
           </div>
 
-          {/* Itera los grupos y renderiza solo si existen datos. */}
-          <div className="space-y-4">
-            {showBlock(user.meta?.tradeeu) && (
-              <section className="p-3 border rounded">
-                <h3 className="font-bold">tradeeu</h3>
-                <p>teams: {user.meta.tradeeu.teams}</p>
-                <p>correo: {user.meta.tradeeu.correo}</p>
-                <p>contraseña: {user.meta.tradeeu.contraseña}</p>
-              </section>
-            )}
+          <h3 className="text-xl font-semibold mb-4 text-center">
+            Credenciales por Marca
+          </h3>
 
-            {showBlock(user.meta?.DID_Voiso) && (
-              <section className="p-3 border rounded">
-                <h3 className="font-bold">DID (Voiso)</h3>
-                <p>correo: {user.meta.DID_Voiso.correo}</p>
-                <p>contraseña: {user.meta.DID_Voiso.contraseña}</p>
-              </section>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* TradeEU */}
+            <div className="border rounded p-4">
+              <h4 className="text-lg font-bold mb-2 text-center text-blue-700">
+                TradeEU
+              </h4>
+              {renderData(meta.tradeeu)}
+            </div>
 
-            {showBlock(user.meta?.Voicespin) && (
-              <section className="p-3 border rounded">
-                <h3 className="font-bold">Voicespin</h3>
-                <p>agent: {user.meta.Voicespin.agent}</p>
-                <p>ext: {user.meta.Voicespin.ext}</p>
-                <p>secret extension: {user.meta.Voicespin.secret_extension}</p>
-              </section>
-            )}
+            {/* ALGOBI */}
+            <div className="border rounded p-4">
+              <h4 className="text-lg font-bold mb-2 text-center text-green-700">
+                ALGOBI
+              </h4>
+              {renderData(meta.ALGOBI)}
+            </div>
 
-            {showBlock(user.meta?.omni) && (
-              <section className="p-3 border rounded">
-                <h3 className="font-bold">omni</h3>
-                <p>usuario: {user.meta.omni.usuario}</p>
-                <p>contraseña: {user.meta.omni.contraseña}</p>
-              </section>
-            )}
+            {/* CAPITALIX */}
+            <div className="border rounded p-4">
+              <h4 className="text-lg font-bold mb-2 text-center text-yellow-700">
+                CAPITALIX
+              </h4>
+              {renderData(meta.CAPITALIX)}
+            </div>
+          </div>
 
-            {showBlock(user.meta?.ALGOBI) && (
-              <section className="p-3 border rounded">
-                <h3 className="font-bold">ALGOBI</h3>
-                {user.meta.ALGOBI.teams && <p>teams: {user.meta.ALGOBI.teams}</p>}
-                {user.meta.ALGOBI.correo && <p>correo: {user.meta.ALGOBI.correo}</p>}
-                {user.meta.ALGOBI.contraseña && <p>contraseña: {user.meta.ALGOBI.contraseña}</p>}
-                {user.meta.ALGOBI.DID_Voiso?.correo && <p>DID correo: {user.meta.ALGOBI.DID_Voiso.correo}</p>}
-                {user.meta.ALGOBI.DID_Voiso?.contraseña && <p>DID contraseña: {user.meta.ALGOBI.DID_Voiso.contraseña}</p>}
-                {user.meta.ALGOBI.omni?.usuario && <p>omni usuario: {user.meta.ALGOBI.omni.usuario}</p>}
-              </section>
-            )}
-
-            {showBlock(user.meta?.CAPITALIX) && (
-              <section className="p-3 border rounded">
-                <h3 className="font-bold">CAPITALIX</h3>
-                {/* solo renderiza si no esta vacio */}
-                {user.meta.CAPITALIX.teams && <p>teams: {user.meta.CAPITALIX.teams}</p>}
-                {user.meta.CAPITALIX.correo && <p>correo: {user.meta.CAPITALIX.correo}</p>}
-                {user.meta.CAPITALIX.contraseña && <p>contraseña: {user.meta.CAPITALIX.contraseña}</p>}
-              </section>
-            )}
+          <div className="mt-8 flex justify-end">
+            <button
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+            >
+              Volver atrás
+            </button>
           </div>
         </div>
       </main>

@@ -1,11 +1,11 @@
 const API_BASE = `${import.meta.env.VITE_API_URL || "http://localhost:4000"}/api/user`;
 
-
 function getAuthHeader() {
   const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+// Obtener todos los usuarios
 export async function fetchUsers() {
   const res = await fetch(`${API_BASE}`, {
     headers: {
@@ -17,6 +17,7 @@ export async function fetchUsers() {
   return await res.json();
 }
 
+// Obtener usuario por ID
 export async function fetchUserById(id) {
   const res = await fetch(`${API_BASE}/${id}`, {
     headers: {
@@ -28,8 +29,9 @@ export async function fetchUserById(id) {
   return await res.json();
 }
 
+// Crear usuario
 export async function createUser(payload) {
-  const res = await fetch(`${API_BASE}/register`, {
+  const res = await fetch(`${API_BASE}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -43,4 +45,17 @@ export async function createUser(payload) {
   return data;
 }
 
+// Login (IMPORTANTE)
+export async function loginUser(pw) {
+  const res = await fetch("http://localhost:4000/api/user/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ pw }),
+  });
 
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Error al iniciar sesión");
+  return data;
+}

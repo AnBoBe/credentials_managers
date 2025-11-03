@@ -359,13 +359,7 @@ const handleLogout = () => {
       </div>
     </div>
 
-    <div className="mt-2">
-      <h4 className="font-medium">omni</h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-        <input placeholder="usuario" value={form.meta.CAPITALIX.omni.usuario} onChange={e => handleFormChange("meta.CAPITALIX.omni.usuario", e.target.value)} className="border px-2 py-1 rounded" />
-        <input placeholder="contraseña" value={form.meta.CAPITALIX.omni.contraseña} onChange={e => handleFormChange("meta.CAPITALIX.omni.contraseña", e.target.value)} className="border px-2 py-1 rounded" />
-      </div>
-    </div>
+   
   </div>
 </div>
 
