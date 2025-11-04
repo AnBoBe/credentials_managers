@@ -1,7 +1,7 @@
 // backend/seedAdmin.js
 import bcrypt from "bcryptjs";
 import User from "./models/user.js";
-import sequelize from "./config/db.js";
+import sequelize from "./database/database.js";
 
 async function seedAdmin() {
   try {

@@ -1,3 +1,4 @@
+// /backend/server.js
 import express from "express";
 import cors from "cors";
 import sequelize from "./database/database.js";
@@ -11,7 +12,7 @@ app.use("/api/user", userRoutes);
 
 const PORT = 4000;
 
-sequelize.sync({ force: false }) // <= Asegúrate que NO esté en true
+sequelize.sync({ force: false })
   .then(() => {
     console.log("Base de datos sincronizada correctamente.");
     app.listen(PORT, () =>

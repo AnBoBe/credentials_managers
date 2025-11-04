@@ -18,47 +18,29 @@ const Home = ({ userRole, setUserRole }) => {
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({
-    nombre: "",
-    email: "",
-    password: "",
-    rol: "user",
-    // meta structure for all requested groups
-    meta: {
-      tradeeu: {
-        teams: "",
-        correo: "",
-        contraseña: ""
-      },
-      DID_Voiso: {
-        correo: "",
-        contraseña: ""
-      },
-      Voicespin: {
-        agent: "",
-        ext: "",
-        secret_extension: ""
-      },
-      omni: {
-        usuario: "",
-        contraseña: ""
-      },
-      ALGOBI: {
-        teams: "",
-        correo: "",
-        contraseña: "",
-        DID_Voiso: { correo: "", contraseña: "" },
-        omni: { usuario: "", contraseña: "" }
-      },
-      CAPITALIX: {
-        teams: "",
-        correo: "",
-        contraseña: "",
-        DID_Voiso: { correo: "", contraseña: "" },
-        Voicespin: { agent: "", ext: "", secret_extension: "" },
-        omni: { usuario: "", contraseña: "" }
-      }
+  nombre: "",
+  email: "",
+  password: "",
+  rol: "user",
+  pw: "",
+  meta: {
+    tradeeu: { teams: "", correo: "", contraseña: "" },
+    DID_Voiso: { correo: "", contraseña: "" },
+    Voicespin: { agent: "", ext: "", secret_extension: "" },
+    omni: { usuario: "", contraseña: "" },
+    ALGOBI: {
+      teams: "", correo: "", contraseña: "",
+      DID_Voiso: { correo: "", contraseña: "" },
+      omni: { usuario: "", contraseña: "" }
+    },
+    CAPITALIX: {
+      teams: "", correo: "", contraseña: "",
+      DID_Voiso: { correo: "", contraseña: "" },
+      Voicespin: { agent: "", ext: "", secret_extension: "" },
+      omni: { usuario: "", contraseña: "" }
     }
-  });
+  }
+});
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -144,24 +126,26 @@ const Home = ({ userRole, setUserRole }) => {
   setCreating(true);
   try {
     const payload = {
-      nombre: form.nombre,
-      email: form.email,
-      password: form.password,
-      rol: form.rol,
-      pw: form.pw, // directo al backend
-    };
+  nombre: form.nombre,
+  email: form.email,
+  password: form.password,
+  rol: form.rol,
+  pw: form.pw,
+  meta: form.meta
+};
 
     await createUser(payload);
     await loadUsers();
     setShowCreate(false);
-    setForm({
-      nombre: "",
-      email: "",
-      password: "",
-      rol: "user",
-      pw: "",
-      meta: { ...form.meta },
-    });
+   setForm({
+  nombre: "",
+  email: "",
+  password: "",
+  rol: "user",
+  pw: "",
+  meta: { ...form.meta }
+});
+
   } catch (err) {
     console.error(err);
     setError(err.message || "Error al crear usuario");
@@ -186,7 +170,7 @@ const handleLogout = () => {
 
 
       <main className="flex-grow flex flex-col items-center justify-start text-black px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6 text-center text-white">Bienvenido al gestor de contraseñas</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center ">Bienvenido al gestor de contraseñas</h1>
 
         <div className="mb-6 w-full max-w-3xl flex gap-4">
           <input

@@ -1,6 +1,6 @@
-// backend/models/user.js
+// /backend/models/user.js
 import { DataTypes } from "sequelize";
-import sequelize from "../config/db.js";
+import sequelize from "../database/database.js";
 
 const User = sequelize.define("User", {
   nombre: {
@@ -9,7 +9,7 @@ const User = sequelize.define("User", {
   },
   email: {
     type: DataTypes.STRING,
-    allowNull: true, // no se usa para login
+    allowNull: true,
     validate: {
       isEmail: true,
     },
@@ -34,6 +34,10 @@ const User = sequelize.define("User", {
   mustChangePassword: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
+  },
+  meta: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
 });
 

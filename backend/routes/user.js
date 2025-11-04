@@ -123,7 +123,6 @@ router.get("/:id", verifyToken, async (req, res) => {
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
     const plainUser = user.toJSON();
-
     try {
       if (typeof plainUser.meta === "string") plainUser.meta = JSON.parse(plainUser.meta);
     } catch {
@@ -146,7 +145,6 @@ router.delete("/:id", verifyToken, async (req, res) => {
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
     await user.destroy();
-
     res.json({ message: "Usuario eliminado correctamente" });
   } catch (error) {
     console.error("Error al eliminar usuario:", error);

@@ -31,7 +31,7 @@ export async function fetchUserById(id) {
 
 // Crear usuario
 export async function createUser(payload) {
-  const res = await fetch(`${API_BASE}`, {
+  const res = await fetch(`${API_BASE}/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
