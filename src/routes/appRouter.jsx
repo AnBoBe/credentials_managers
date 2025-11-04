@@ -5,8 +5,8 @@ import Home from "../pages/home";
 import Credentials from "../pages/credentials";
 
 const AppRouter = ({ userRole, setUserRole }) => {
-  const token = localStorage.getItem("token");
-  const isAuthenticated = !!token;
+  // usamos el estado global para determinar autenticación
+  const isAuthenticated = !!userRole;
 
   return (
     <Routes>
@@ -39,17 +39,18 @@ const AppRouter = ({ userRole, setUserRole }) => {
         path="/credentials/:id"
         element={
           isAuthenticated ? (
-            <Credentials userRole={userRole} />
+            <Credentials userRole={userRole} setUserRole={setUserRole} />
           ) : (
             <Navigate to="/login" replace />
           )
         }
       />
 
-      {/* Cualquier otra ruta redirige al login */}
+      {/* Redirigir cualquier otra ruta al login */}
       <Route path="/*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };
 
 export default AppRouter;
+

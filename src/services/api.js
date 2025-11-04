@@ -45,7 +45,7 @@ export async function createUser(payload) {
   return data;
 }
 
-// Login (IMPORTANTE)
+// Login 
 export async function loginUser(pw) {
   const res = await fetch("http://localhost:4000/api/user/login", {
     method: "POST",

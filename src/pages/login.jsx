@@ -5,7 +5,7 @@ import Footer from "../components/footer";
 
 const Login = ({ setUserRole }) => {
   const navigate = useNavigate();
-  const [pw, setPw] = useState("");             // nuevo estado para PW
+  const [pw, setPw] = useState("");             
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 

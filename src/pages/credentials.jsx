@@ -5,11 +5,18 @@ import Footer from "../components/footer";
 import { fetchUserById } from "../services/api";
 import mmlogo from "../assets/mmlogo.jpg";
 
-const Credentials = ({ userRole }) => {
+const Credentials = ({ userRole, setUserRole }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  //  Redirige al login si no hay userRole (logout)
+  useEffect(() => {
+    if (!userRole) {
+      navigate("/login", { replace: true });
+    }
+  }, [userRole, navigate]);
 
   useEffect(() => {
     const load = async () => {
@@ -26,7 +33,6 @@ const Credentials = ({ userRole }) => {
           }
         }
 
-        // Asegura estructura base
         const normalizedMeta = {
           tradeeu: meta.tradeeu || {},
           ALGOBI: meta.ALGOBI || {},
@@ -49,8 +55,7 @@ const Credentials = ({ userRole }) => {
     };
 
     load();
-    // eslint-disable-next-line
-  }, [id]);
+  }, [id, navigate]);
 
   if (loading) return <div className="p-6">Cargando...</div>;
   if (!user) return <div className="p-6">Usuario no encontrado</div>;
@@ -80,7 +85,7 @@ const Credentials = ({ userRole }) => {
 
   return (
     <>
-      <NavBar userRole={userRole} />
+      <NavBar userRole={userRole} setUserRole={setUserRole} />
       <main className="min-h-screen bg-darkgray text-black p-6">
         <div className="max-w-6xl mx-auto bg-white rounded-lg p-6 shadow">
           <div className="flex items-center gap-4 mb-6">
@@ -101,7 +106,6 @@ const Credentials = ({ userRole }) => {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* TradeEU */}
             <div className="border rounded p-4">
               <h4 className="text-lg font-bold mb-2 text-center text-blue-700">
                 TradeEU
@@ -109,7 +113,6 @@ const Credentials = ({ userRole }) => {
               {renderData(meta.tradeeu)}
             </div>
 
-            {/* ALGOBI */}
             <div className="border rounded p-4">
               <h4 className="text-lg font-bold mb-2 text-center text-green-700">
                 ALGOBI
@@ -117,7 +120,6 @@ const Credentials = ({ userRole }) => {
               {renderData(meta.ALGOBI)}
             </div>
 
-            {/* CAPITALIX */}
             <div className="border rounded p-4">
               <h4 className="text-lg font-bold mb-2 text-center text-yellow-700">
                 CAPITALIX

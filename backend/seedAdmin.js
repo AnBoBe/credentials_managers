@@ -18,7 +18,7 @@ async function seedAdmin() {
 
     await User.create({
       nombre: "Administrador",
-      email: "admin@local.com", // formato válido, pero no se usa en login
+      email: "admin@local.com",
       password: hashedPassword,
       rol: "admin",
       pw: "0000", // el consecutivo que usará para loguearse

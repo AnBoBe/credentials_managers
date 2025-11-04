@@ -12,6 +12,11 @@ const defaultImg = mmlogo;
 
 const Home = ({ userRole, setUserRole }) => {
   const navigate = useNavigate();
+  useEffect(() => {
+  if (!userRole) {
+    navigate("/login", { replace: true });
+  }
+}, [userRole, navigate]);
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -49,15 +54,16 @@ const Home = ({ userRole, setUserRole }) => {
   }, []);
 
   async function loadUsers() {
+    const token = localStorage.getItem("token");
+  if (!token) return;  //evita 401 si el usuario ya se deslogueó
     setLoading(true);
     try {
       const data = await fetchUsers(); // requiere token de admin
-      // normalize: ensure fields exist
       const list = data.map(u => ({
         id: u.id,
         nombre: u.nombre,
         email: u.email,
-        pw: u.meta?.pw || u.pw || "", // if backend returns pw inside meta or pw
+        pw: u.meta?.pw || u.pw || "", 
         meta: u.meta || null,
         img: defaultImg
       }));
@@ -70,13 +76,13 @@ const Home = ({ userRole, setUserRole }) => {
     }
   }
 
-  // Filtering by name or pw
+  // Filtrado por nombre o pw
   const filtered = users.filter(user =>
     (user.nombre || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.pw || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Delete locally (and ideally call backend delete endpoint)
+  // funcion de eliminacion de usuario
   const handleDelete = async id => {
     if (!window.confirm("¿Seguro que quieres eliminar este usuario?")) return;
     // call backend DELETE (needs auth)
@@ -97,9 +103,9 @@ const Home = ({ userRole, setUserRole }) => {
     navigate(`/credentials/${user.id}`);
   };
 
-  // Create user flow
+  // Crea el flujo de usuario
   const handleFormChange = (path, value) => {
-    // path like "nombre" or "meta.tradeeu.correo"
+    
     if (!path.includes(".")) {
       setForm(prev => ({ ...prev, [path]: value }));
       return;
@@ -160,14 +166,13 @@ const Home = ({ userRole, setUserRole }) => {
 const handleLogout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("userRole");
+  setUserRole(null);
   navigate("/login");
 };
 
   return (
     <div className="flex flex-col min-h-screen bg-darkgray">
       <NavBar userRole={userRole} setUserRole={setUserRole} handleLogout={handleLogout} />
-
-
 
       <main className="flex-grow flex flex-col items-center justify-start text-black px-4 py-8">
         <h1 className="text-3xl font-bold mb-6 text-center ">Bienvenido al gestor de contraseñas</h1>
@@ -257,7 +262,7 @@ const handleLogout = () => {
 
             <hr className="my-4" />
 
-            {/* Secciones estáticas solicitadas (mostradas como H2 quemado + campos editables) */}
+            
           <div className="space-y-4">
   <div>
     <h3 className="text-lg font-semibold">tradeeu</h3>

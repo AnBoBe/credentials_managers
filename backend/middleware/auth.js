@@ -1,6 +1,5 @@
-// backend/middleware/auth.js
 import jwt from "jsonwebtoken";
-const SECRET_KEY = "claveultrasecreta"; // misma clave que usas en user.js
+const SECRET_KEY = "MediaM25*";
 
 export function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;

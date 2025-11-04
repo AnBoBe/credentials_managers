@@ -1,5 +1,3 @@
-//src/components/credentialsSection.jsx
-
 import React from "react";
 
 const CredentialsSection = ({ title, data }) => {

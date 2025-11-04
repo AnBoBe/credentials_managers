@@ -1,4 +1,3 @@
-// /backend/models/user.js
 import { DataTypes } from "sequelize";
 import sequelize from "../database/database.js";
 

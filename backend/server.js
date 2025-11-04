@@ -1,4 +1,3 @@
-// /backend/server.js
 import express from "express";
 import cors from "cors";
 import sequelize from "./database/database.js";
