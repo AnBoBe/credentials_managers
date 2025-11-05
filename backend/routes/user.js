@@ -3,11 +3,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import { verifyToken } from "../middleware/auth.js";
+import { SECRET_KEY } from "../config/config.js";
 
 const router = express.Router();
-const SECRET_KEY = "MediaM25*";
 
-// Helper: parsea meta de forma segura y normaliza subcampos
 function safeParseMeta(meta) {
   if (!meta) meta = {};
   try {
@@ -54,7 +53,6 @@ function safeParseMeta(meta) {
   }
 }
 
-// Registrar usuario
 router.post("/register", async (req, res) => {
   try {
     const { nombre, email, password, rol, pw, meta } = req.body;
@@ -63,12 +61,11 @@ router.post("/register", async (req, res) => {
     if (existing) return res.status(400).json({ error: "El PW ya existe" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const cleanMeta = safeParseMeta(meta);
 
     const newUser = await User.create({
       nombre,
-      email: email || null, // email opcional
+      email: email || null,
       password: hashedPassword,
       rol,
       pw,
@@ -86,7 +83,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login
 router.post("/login", async (req, res) => {
   try {
     const { pw, password } = req.body;
@@ -119,7 +115,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Obtener todos los usuarios
 router.get("/", verifyToken, async (req, res) => {
   try {
     if (req.user.rol === "admin") {
@@ -152,7 +147,6 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
-// Obtener usuario por ID
 router.get("/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -172,7 +166,6 @@ router.get("/:id", verifyToken, async (req, res) => {
   }
 });
 
-// Eliminar usuario
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -187,7 +180,6 @@ router.delete("/:id", verifyToken, async (req, res) => {
   }
 });
 
-// Actualizar usuario por ID (solo admin)
 router.put("/:id", verifyToken, async (req, res) => {
   try {
     if (req.user.rol !== "admin") {
@@ -200,7 +192,6 @@ router.put("/:id", verifyToken, async (req, res) => {
     const user = await User.findByPk(id);
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
-    // Si envían password en texto plano, lo hasheamos
     let updateData = {};
     if (nombre !== undefined) updateData.nombre = nombre;
     if (email !== undefined) updateData.email = email;
@@ -213,7 +204,6 @@ router.put("/:id", verifyToken, async (req, res) => {
       updateData.password = hashed;
     }
 
-    // Meta: normalizar y guardar como string
     if (meta !== undefined) {
       const cleanMeta = safeParseMeta(meta);
       updateData.meta = JSON.stringify(cleanMeta);
@@ -234,6 +224,5 @@ router.put("/:id", verifyToken, async (req, res) => {
     res.status(500).json({ error: "Error al actualizar el usuario" });
   }
 });
-
 
 export default router;

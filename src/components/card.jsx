@@ -1,18 +1,40 @@
 import React from "react";
+import { deleteUser } from "../services/api";
 
 export default function Card({ user, userRole, handleDelete, handleGo }) {
-  // Confirmar y eliminar usuario
-  const handleDeleteClick = async () => {
-    if (!confirm(`¿Eliminar usuario ${user.nombre}?`)) return;
+  console.log("Card props:", { user, userRole, handleDeleteType: typeof handleDelete });
+
+  const handleDeleteClick = async (e) => {
+    e.stopPropagation();
+    console.log("handleDeleteClick invoked for user:", user);
+
+    const userId = user?.id;
+    console.log("Computed userId:", userId);
+
+    if (!userId) {
+      console.error("No user id disponible, no se puede eliminar");
+      alert("ID de usuario inválido");
+      return;
+    }
+
+    const confirmed = window.confirm(`¿Eliminar usuario ${user.nombre}?`);
+    if (!confirmed) {
+      console.log("Eliminación cancelada por usuario");
+      return;
+    }
+
     try {
-      await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:4000"}/api/user/${user.id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (handleDelete) handleDelete(user.id);
+      console.log("[Card] llamando a deleteUser:", userId);
+      const result = await deleteUser(userId);
+      console.log("[Card] deleteUser result:", result);
+      if (typeof handleDelete === "function") {
+        handleDelete(userId);
+      } else {
+        console.warn("handleDelete no es función:", typeof handleDelete);
+      }
     } catch (err) {
       console.error("Error eliminando usuario:", err);
-      alert("Error al eliminar usuario");
+      alert(err.message || "Error al eliminar usuario");
     }
   };
 
@@ -20,31 +42,30 @@ export default function Card({ user, userRole, handleDelete, handleGo }) {
     <div className="border rounded-xl shadow-md p-4 text-center relative bg-white hover:shadow-lg transition">
       {userRole === "admin" && (
         <button
+          type="button"
           onClick={handleDeleteClick}
+          data-user-id={user?.id}
           className="absolute top-1 right-2 text-red-500 font-bold text-lg hover:text-red-700"
         >
           ×
         </button>
       )}
 
-      {/* Imagen */}
       <img
         src={user.img || "/logo.png"}
         alt={user.nombre}
         className="w-full h-32 object-contain mb-3"
       />
 
-      {/* Nombre */}
       <h3 className="text-lg font-semibold capitalize">{user.nombre}</h3>
 
-      {/* Campo PW */}
       <p className="text-sm text-gray-700 mt-1">
         <span className="font-semibold">PW:</span>{" "}
         {user.pw && user.pw.trim() !== "" ? user.pw : "No asignado"}
       </p>
 
-      {/* Botón Ir */}
       <button
+        type="button"
         onClick={() => handleGo(user)}
         className="mt-3 bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700 transition"
       >

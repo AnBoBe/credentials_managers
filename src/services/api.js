@@ -77,3 +77,35 @@ export const updateUser = async (id, data) => {
   }
   return res.json();
 };
+// Eliminar usuario
+export async function deleteUser(id) {
+  const token = localStorage.getItem("token");
+  const base = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const url = `${base}/api/user/${id}`;
+
+  console.log("[deleteUser] URL:", url, "Token:", token);
+
+  try {
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    console.log("[deleteUser] Response status:", res.status);
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      console.error("[deleteUser] Error response:", errData);
+      throw new Error(errData.error || "Error al eliminar usuario");
+    }
+
+    console.log(`[deleteUser] Usuario ${id} eliminado correctamente`);
+    return true;
+  } catch (err) {
+    console.error("[deleteUser] Exception:", err);
+    throw err;
+  }
+}
