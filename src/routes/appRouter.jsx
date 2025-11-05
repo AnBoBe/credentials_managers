@@ -3,9 +3,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/login";
 import Home from "../pages/home";
 import Credentials from "../pages/credentials";
+import EditCredentials from "../components/editCredentials";
 
 const AppRouter = ({ userRole, setUserRole }) => {
-  // usamos el estado global para determinar autenticación
   const isAuthenticated = !!userRole;
 
   return (
@@ -46,11 +46,22 @@ const AppRouter = ({ userRole, setUserRole }) => {
         }
       />
 
-      {/* Redirigir cualquier otra ruta al login */}
+      {/* Edición de credenciales (solo admin) */}
+      <Route
+        path="/edit-credentials/:id"
+        element={
+          isAuthenticated ? (
+            <EditCredentials userRole={userRole} setUserRole={setUserRole} />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      {/* Redirección por defecto */}
       <Route path="/*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };
 
 export default AppRouter;
-

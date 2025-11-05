@@ -18,6 +18,7 @@ const Credentials = ({ userRole, setUserRole }) => {
     }
   }, [userRole, navigate]);
 
+  // Carga del usuario y normalización de meta
   useEffect(() => {
     const load = async () => {
       try {
@@ -32,11 +33,16 @@ const Credentials = ({ userRole, setUserRole }) => {
             meta = {};
           }
         }
+        //  Normalizar claves del objeto meta (todo a minúsculas)
+        const normalizedKeys = Object.fromEntries(
+          Object.entries(meta).map(([key, value]) => [key.toLowerCase(), value])
+        );
 
+        // Crear estructura coherente
         const normalizedMeta = {
-          tradeeu: meta.tradeeu || {},
-          ALGOBI: meta.ALGOBI || {},
-          CAPITALIX: meta.CAPITALIX || {}
+          tradeeu: normalizedKeys.tradeeu || {},
+          algobi: normalizedKeys.algobi || {},
+          capitalix: normalizedKeys.capitalix || {}
         };
 
         setUser({
@@ -62,6 +68,7 @@ const Credentials = ({ userRole, setUserRole }) => {
 
   const { meta } = user;
 
+  //  Función recursiva para mostrar los datos
   const renderData = (obj) => {
     if (!obj || Object.keys(obj).length === 0)
       return <p className="text-gray-400 text-sm">Sin datos</p>;
@@ -88,18 +95,28 @@ const Credentials = ({ userRole, setUserRole }) => {
       <NavBar userRole={userRole} setUserRole={setUserRole} />
       <main className="min-h-screen bg-darkgray text-black p-6">
         <div className="max-w-6xl mx-auto bg-white rounded-lg p-6 shadow">
-          <div className="flex items-center gap-4 mb-6">
-            <img
-              src={user.img}
-              alt={user.nombre}
-              className="w-24 h-24 object-cover rounded"
-            />
-            <div>
-              <h2 className="text-2xl font-bold">{user.nombre}</h2>
-              <p className="text-sm text-gray-600">{user.email}</p>
-              <p className="text-sm">PW: {user.pw}</p>
-            </div>
-          </div>
+          <div className="flex items-center justify-between mb-6">
+  <div className="flex items-center gap-4">
+    <img
+      src={user.img}
+      alt={user.nombre}
+      className="w-24 h-24 object-cover rounded"
+    />
+    <div>
+      <h2 className="text-2xl font-bold">{user.nombre}</h2>
+      <p className="text-sm text-gray-600">{user.email}</p>
+      <p className="text-sm">PW: {user.pw}</p>
+    </div>
+  </div>
+
+  <button
+    onClick={() => navigate(-1)}
+    className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+  >
+    Volver atrás
+  </button>
+</div>
+
 
           <h3 className="text-xl font-semibold mb-4 text-center">
             Credenciales por Marca
@@ -117,25 +134,29 @@ const Credentials = ({ userRole, setUserRole }) => {
               <h4 className="text-lg font-bold mb-2 text-center text-green-700">
                 ALGOBI
               </h4>
-              {renderData(meta.ALGOBI)}
+              {renderData(meta.algobi)}
             </div>
 
             <div className="border rounded p-4">
               <h4 className="text-lg font-bold mb-2 text-center text-yellow-700">
                 CAPITALIX
               </h4>
-              {renderData(meta.CAPITALIX)}
+              {renderData(meta.capitalix)}
             </div>
           </div>
 
-          <div className="mt-8 flex justify-end">
-            <button
-              onClick={() => navigate(-1)}
-              className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-            >
-              Volver atrás
-            </button>
-          </div>
+          {userRole === "admin" && (
+  <div className="mt-8 flex justify-end">
+    <button
+      onClick={() => navigate(`/edit-credentials/${user.id}`)}
+      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+    >
+      Editar Credenciales
+    </button>
+  </div>
+)}
+
+          
         </div>
       </main>
       <Footer />

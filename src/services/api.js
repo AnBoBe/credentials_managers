@@ -59,3 +59,21 @@ export async function loginUser(pw) {
   if (!res.ok) throw new Error(data.error || "Error al iniciar sesión");
   return data;
 }
+
+export const updateUser = async (id, data) => {
+  const token = localStorage.getItem("token");
+  const base = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const res = await fetch(`${base}/api/user/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Error al actualizar usuario");
+  }
+  return res.json();
+};

@@ -5,7 +5,54 @@ import User from "../models/user.js";
 import { verifyToken } from "../middleware/auth.js";
 
 const router = express.Router();
-const SECRET_KEY = "claveultrasecreta";
+const SECRET_KEY = "MediaM25*";
+
+// Helper: parsea meta de forma segura y normaliza subcampos
+function safeParseMeta(meta) {
+  if (!meta) meta = {};
+  try {
+    meta = typeof meta === "string" ? JSON.parse(meta) : meta;
+
+    const normalized = {
+      tradeeu: {
+        teams: "",
+        correo: "",
+        contraseña: "",
+        DID_Voiso: { correo: "", contraseña: "" },
+        Voicespin: { agent: "", ext: "", secret_extension: "" },
+        omni: { usuario: "", contraseña: "" },
+        ...meta.tradeeu,
+        DID_Voiso: { ...meta.tradeeu?.DID_Voiso },
+        Voicespin: { ...meta.tradeeu?.Voicespin },
+        omni: { ...meta.tradeeu?.omni },
+      },
+      ALGOBI: {
+        teams: "",
+        correo: "",
+        contraseña: "",
+        DID_Voiso: { correo: "", contraseña: "" },
+        omni: { usuario: "", contraseña: "" },
+        ...meta.ALGOBI,
+        DID_Voiso: { ...meta.ALGOBI?.DID_Voiso },
+        omni: { ...meta.ALGOBI?.omni },
+      },
+      CAPITALIX: {
+        teams: "",
+        correo: "",
+        contraseña: "",
+        DID_Voiso: { correo: "", contraseña: "" },
+        Voicespin: { agent: "", ext: "", secret_extension: "" },
+        ...meta.CAPITALIX,
+        DID_Voiso: { ...meta.CAPITALIX?.DID_Voiso },
+        Voicespin: { ...meta.CAPITALIX?.Voicespin },
+      },
+    };
+
+    return normalized;
+  } catch {
+    return {};
+  }
+}
 
 // Registrar usuario
 router.post("/register", async (req, res) => {
@@ -17,14 +64,16 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const cleanMeta = safeParseMeta(meta);
+
     const newUser = await User.create({
       nombre,
-      email,
+      email: email || null, // email opcional
       password: hashedPassword,
       rol,
       pw,
       mustChangePassword: true,
-      meta: meta ? JSON.stringify(meta) : "{}",
+      meta: JSON.stringify(cleanMeta),
     });
 
     res.status(201).json({
@@ -70,7 +119,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Obtener todos los usuarios o uno específico
+// Obtener todos los usuarios
 router.get("/", verifyToken, async (req, res) => {
   try {
     if (req.user.rol === "admin") {
@@ -80,11 +129,7 @@ router.get("/", verifyToken, async (req, res) => {
 
       const parsed = users.map((u) => {
         const data = u.toJSON();
-        try {
-          if (typeof data.meta === "string") data.meta = JSON.parse(data.meta);
-        } catch {
-          data.meta = {};
-        }
+        data.meta = safeParseMeta(data.meta);
         return data;
       });
 
@@ -97,12 +142,8 @@ router.get("/", verifyToken, async (req, res) => {
 
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
-    let data = user.toJSON();
-    try {
-      if (typeof data.meta === "string") data.meta = JSON.parse(data.meta);
-    } catch {
-      data.meta = {};
-    }
+    const data = user.toJSON();
+    data.meta = safeParseMeta(data.meta);
 
     res.json([data]);
   } catch (error) {
@@ -115,21 +156,16 @@ router.get("/", verifyToken, async (req, res) => {
 router.get("/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
-
     const user = await User.findByPk(id, {
       attributes: ["id", "nombre", "email", "rol", "pw", "img", "meta"],
     });
 
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
-    const plainUser = user.toJSON();
-    try {
-      if (typeof plainUser.meta === "string") plainUser.meta = JSON.parse(plainUser.meta);
-    } catch {
-      plainUser.meta = {};
-    }
+    const data = user.toJSON();
+    data.meta = safeParseMeta(data.meta);
 
-    res.json(plainUser);
+    res.json(data);
   } catch (error) {
     console.error("Error al obtener usuario por ID:", error);
     res.status(500).json({ error: "Error al obtener usuario" });
@@ -140,7 +176,6 @@ router.get("/:id", verifyToken, async (req, res) => {
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
-
     const user = await User.findByPk(id);
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
@@ -151,5 +186,54 @@ router.delete("/:id", verifyToken, async (req, res) => {
     res.status(500).json({ error: "Error al eliminar el usuario" });
   }
 });
+
+// Actualizar usuario por ID (solo admin)
+router.put("/:id", verifyToken, async (req, res) => {
+  try {
+    if (req.user.rol !== "admin") {
+      return res.status(403).json({ error: "Acceso denegado" });
+    }
+
+    const { id } = req.params;
+    const { nombre, email, rol, pw, img, password, meta } = req.body;
+
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    // Si envían password en texto plano, lo hasheamos
+    let updateData = {};
+    if (nombre !== undefined) updateData.nombre = nombre;
+    if (email !== undefined) updateData.email = email;
+    if (rol !== undefined) updateData.rol = rol;
+    if (pw !== undefined) updateData.pw = pw;
+    if (img !== undefined) updateData.img = img;
+
+    if (password) {
+      const hashed = await bcrypt.hash(password, 10);
+      updateData.password = hashed;
+    }
+
+    // Meta: normalizar y guardar como string
+    if (meta !== undefined) {
+      const cleanMeta = safeParseMeta(meta);
+      updateData.meta = JSON.stringify(cleanMeta);
+    }
+
+    await user.update(updateData);
+
+    const updated = await User.findByPk(id, {
+      attributes: ["id", "nombre", "email", "rol", "pw", "img", "meta"],
+    });
+
+    const data = updated.toJSON();
+    data.meta = safeParseMeta(data.meta);
+
+    res.json({ message: "Usuario actualizado", user: data });
+  } catch (error) {
+    console.error("Error al actualizar usuario:", error);
+    res.status(500).json({ error: "Error al actualizar el usuario" });
+  }
+});
+
 
 export default router;

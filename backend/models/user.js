@@ -10,7 +10,11 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: true,
     validate: {
-      isEmail: true,
+      isEmailOrEmpty(value) {
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          throw new Error("Formato de email inválido");
+        }
+      },
     },
   },
   password: {
