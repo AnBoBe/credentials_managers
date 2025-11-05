@@ -11,7 +11,7 @@ const Credentials = ({ userRole, setUserRole }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  //  Redirige al login si no hay userRole (logout)
+  //  Redirige al login si no hay userRole 
   useEffect(() => {
     if (!userRole) {
       navigate("/login", { replace: true });

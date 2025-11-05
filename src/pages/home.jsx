@@ -94,7 +94,7 @@ const [form, setForm] = useState({
   // funcion de eliminacion de usuario
   const handleDelete = async id => {
     if (!window.confirm("¿Seguro que quieres eliminar este usuario?")) return;
-    // call backend DELETE (needs auth)
+    // llama backend DELETE 
     try {
      await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:4000"}/api/user/${id}`, {
 

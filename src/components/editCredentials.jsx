@@ -113,7 +113,7 @@ const EditCredentials = ({ userRole, setUserRole }) => {
 
  const renderInputs = (obj, prefix = "") => {
   return Object.entries(obj)
-    .filter(([key]) => key !== "teams" && key !== "email") // Oculta estos campos
+    .filter(([key]) => key !== "teams" && key !== "email")
     .map(([key, value]) => {
       if (typeof value === "object" && value !== null) {
         return (

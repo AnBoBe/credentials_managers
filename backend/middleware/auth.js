@@ -1,4 +1,3 @@
-// backend/middleware/auth.js
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../config/config.js";
 

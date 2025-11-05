@@ -5,7 +5,7 @@ const NavBar = ({ userRole, setUserRole }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Limpiamos storage
+    // Limpiamos localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("userRole");
 
