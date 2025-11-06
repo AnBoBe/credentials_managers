@@ -5,6 +5,7 @@ import Footer from "../components/footer";
 import Card from "../components/card";
 import mmlogo from "../assets/mmlogo.jpg";
 import { fetchUsers, createUser } from "../services/api";
+import ImportExcelUsers from "../components/importExcelUsers";
 
 
 
@@ -96,7 +97,7 @@ const [form, setForm] = useState({
     if (!window.confirm("¿Seguro que quieres eliminar este usuario?")) return;
     // llama backend DELETE 
     try {
-     await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:4000"}/api/user/${id}`, {
+     await fetch(`${import.meta.env.VITE_API_URL || "http://172.22.7.106:4000"}/api/user/${id}`, {
 
         method: "DELETE",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` }
@@ -232,6 +233,10 @@ const handleLogout = () => {
               Crear usuario
             </button>
           )}
+          {userRole === "admin" && (
+  <ImportExcelUsers onFinish={loadUsers} />
+)}
+
         </div>
 
         <section className="text-gray-600 body-font bg-gray-100 border border-gray-300 rounded-2xl shadow-md w-full max-w-6xl p-8">

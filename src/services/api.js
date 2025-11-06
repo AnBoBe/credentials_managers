@@ -1,4 +1,4 @@
-const API_BASE = `${import.meta.env.VITE_API_URL || "http://localhost:4000"}/api/user`;
+const API_BASE = `${import.meta.env.VITE_API_URL || "http://172.22.7.106:4000"}/api/user`;
 
 function getAuthHeader() {
   const token = localStorage.getItem("token");
@@ -29,7 +29,7 @@ export async function fetchUserById(id) {
   return await res.json();
 }
 
-// Crear usuario
+// Crear usuario(s)
 export async function createUser(payload) {
   const res = await fetch(`${API_BASE}/register`, {
     method: "POST",
@@ -37,17 +37,21 @@ export async function createUser(payload) {
       "Content-Type": "application/json",
       ...getAuthHeader(),
     },
+    //  Si payload es un array, el backend lo entenderá automáticamente
     body: JSON.stringify(payload),
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Error al crear usuario");
+
+  if (!res.ok) {
+    throw new Error(data.error || "Error al crear usuario(s)");
+  }
+
   return data;
 }
-
 // Login 
 export async function loginUser(pw) {
-  const res = await fetch("http://localhost:4000/api/user/login", {
+  const res = await fetch("http://172.22.7.106:4000/api/user/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -62,7 +66,7 @@ export async function loginUser(pw) {
 
 export const updateUser = async (id, data) => {
   const token = localStorage.getItem("token");
-  const base = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const base = import.meta.env.VITE_API_URL || "http://172.22.7.106:4000";
   const res = await fetch(`${base}/api/user/${id}`, {
     method: "PUT",
     headers: {
@@ -80,7 +84,7 @@ export const updateUser = async (id, data) => {
 // Eliminar usuario
 export async function deleteUser(id) {
   const token = localStorage.getItem("token");
-  const base = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const base = import.meta.env.VITE_API_URL || "http://172.22.7.106:4000";
   const url = `${base}/api/user/${id}`;
 
   console.log("[deleteUser] URL:", url, "Token:", token);

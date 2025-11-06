@@ -55,33 +55,53 @@ function safeParseMeta(meta) {
 
 router.post("/register", async (req, res) => {
   try {
-    const { nombre, email, password, rol, pw, meta } = req.body;
+    const payload = Array.isArray(req.body) ? req.body : [req.body];
 
-    const existing = await User.findOne({ where: { pw } });
-    if (existing) return res.status(400).json({ error: "El PW ya existe" });
+    // Detectar PWs duplicados dentro del mismo lote
+    const pwValues = payload.map(u => u.pw);
+    const duplicates = pwValues.filter((pw, i) => pwValues.indexOf(pw) !== i);
+    if (duplicates.length > 0) {
+      return res.status(400).json({ error: `PWs duplicados en el archivo: ${[...new Set(duplicates)].join(", ")}` });
+    }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const cleanMeta = safeParseMeta(meta);
-
-    const newUser = await User.create({
-      nombre,
-      email: email || null,
-      password: hashedPassword,
-      rol,
-      pw,
-      mustChangePassword: true,
-      meta: JSON.stringify(cleanMeta),
+    // Verificar si alguno de los PW ya existe en la BD
+    const existingUsers = await User.findAll({
+      where: { pw: pwValues },
+      attributes: ["pw"]
     });
+    if (existingUsers.length > 0) {
+      const existingPWs = existingUsers.map(u => u.pw);
+      return res.status(400).json({ error: `Ya existen los siguientes PW: ${existingPWs.join(", ")}` });
+    }
+
+    // Preparar datos
+    const usersToCreate = await Promise.all(payload.map(async (user) => {
+      const hashedPassword = await bcrypt.hash(user.password, 10);
+      const cleanMeta = safeParseMeta(user.meta);
+
+      return {
+        nombre: user.nombre,
+        email: user.email || null,
+        password: hashedPassword,
+        rol: user.rol || "user",
+        pw: user.pw,
+        mustChangePassword: true,
+        meta: JSON.stringify(cleanMeta),
+      };
+    }));
+
+    const created = await User.bulkCreate(usersToCreate);
 
     res.status(201).json({
-      message: "Usuario creado correctamente",
-      user: newUser,
+      message: `Se crearon ${created.length} usuario(s) correctamente`,
+      users: created,
     });
   } catch (error) {
-    console.error("Error al registrar usuario:", error);
-    res.status(500).json({ error: "Error al registrar el usuario" });
+    console.error("Error al registrar usuario(s):", error);
+    res.status(500).json({ error: "Error al registrar los usuarios" });
   }
 });
+
 
 router.post("/login", async (req, res) => {
   try {

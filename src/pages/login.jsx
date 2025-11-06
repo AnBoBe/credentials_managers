@@ -40,7 +40,7 @@ const Login = ({ setUserRole }) => {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/api/user/login", {
+      const res = await fetch("http://172.22.7.106:4000/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pw, password }), 
