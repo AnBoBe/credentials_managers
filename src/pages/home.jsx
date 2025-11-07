@@ -132,65 +132,48 @@ const [form, setForm] = useState({
       return copy;
     });
   };
-
-  const submitCreate = async () => {
+const submitCreate = async () => {
   setError("");
-  if (!form.nombre  || !form.password) {
-    setError("Nombre y contraseña son obligatorios");
+
+  // Validación condicional según el rol
+  if (!form.nombre) {
+    setError("El nombre es obligatorio");
     return;
   }
+
+  if (form.rol === "admin" && !form.password) {
+    setError("La contraseña es obligatoria para administradores");
+    return;
+  }
+
   setCreating(true);
   try {
     const payload = {
-  nombre: form.nombre,
-  email: form.email,
-  password: form.password,
-  rol: form.rol,
-  pw: form.pw,
-  meta: form.meta
-};
+      nombre: form.nombre,
+      email: form.email,
+      password: form.password || null, // puede ir vacío si no es admin
+      rol: form.rol,
+      pw: form.pw,
+      meta: form.meta
+    };
 
     await createUser(payload);
     await loadUsers();
     setShowCreate(false);
-setForm({
-  nombre: "",
-  email: "",
-  password: "",
-  rol: "user",
-  pw: "",
-  meta: {
-    tradeeu: {
-      teams: "",
-      correo: "",
-      contraseña: "",
-      crm: { correo: "", contraseña: "" },
-      DID_Voiso: { correo: "", contraseña: "" },
-      Voicespin: { agent: "", ext: "", secret_extension: "" },
-      omni: { usuario: "", contraseña: "" }
-    },
-    ALGOBI: {
-      teams: "",
-      correo: "",
-      contraseña: "",
-      crm: { correo: "", contraseña: "" },
-      DID_Voiso: { correo: "", contraseña: "" },
-      omni: { usuario: "", contraseña: "" }
-    },
-    CAPITALIX: {
-      teams: "",
-      correo: "",
-      contraseña: "",
-      crm: { correo: "", contraseña: "" },
-      DID_Voiso: { correo: "", contraseña: "" },
-      Voicespin: { agent: "", ext: "", secret_extension: "" }
-    }
-  }
-});
 
-
-
-
+    // Limpiar formulario
+    setForm({
+      nombre: "",
+      email: "",
+      password: "",
+      rol: "user",
+      pw: "",
+      meta: {
+        tradeeu: { teams: "", correo: "", contraseña: "", DID_Voiso: { correo: "", contraseña: "" }, Voicespin: { agent: "", ext: "", secret_extension: "" }, omni: { usuario: "", contraseña: "" } },
+        ALGOBI: { teams: "", correo: "", contraseña: "", DID_Voiso: { correo: "", contraseña: "" }, omni: { usuario: "", contraseña: "" } },
+        CAPITALIX: { teams: "", correo: "", contraseña: "", DID_Voiso: { correo: "", contraseña: "" }, Voicespin: { agent: "", ext: "", secret_extension: "" } }
+      }
+    });
   } catch (err) {
     console.error(err);
     setError(err.message || "Error al crear usuario");
@@ -198,8 +181,6 @@ setForm({
     setCreating(false);
   }
 };
-
-
  
 
 const handleLogout = () => {

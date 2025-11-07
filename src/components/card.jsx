@@ -2,38 +2,38 @@ import React from "react";
 import { deleteUser } from "../services/api";
 
 export default function Card({ user, userRole, handleDelete, handleGo }) {
-  console.log("Card props:", { user, userRole, handleDeleteType: typeof handleDelete });
+ 
 
   const handleDeleteClick = async (e) => {
     e.stopPropagation();
-    console.log("handleDeleteClick invoked for user:", user);
+ 
 
     const userId = user?.id;
-    console.log("Computed userId:", userId);
+ 
 
     if (!userId) {
-      console.error("No user id disponible, no se puede eliminar");
+ 
       alert("ID de usuario inválido");
       return;
     }
 
     const confirmed = window.confirm(`¿Eliminar usuario ${user.nombre}?`);
     if (!confirmed) {
-      console.log("Eliminación cancelada por usuario");
+ 
       return;
     }
 
     try {
-      console.log("[Card] llamando a deleteUser:", userId);
+ 
       const result = await deleteUser(userId);
-      console.log("[Card] deleteUser result:", result);
+ 
       if (typeof handleDelete === "function") {
         handleDelete(userId);
       } else {
-        console.warn("handleDelete no es función:", typeof handleDelete);
+ 
       }
     } catch (err) {
-      console.error("Error eliminando usuario:", err);
+ 
       alert(err.message || "Error al eliminar usuario");
     }
   };

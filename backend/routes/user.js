@@ -55,50 +55,79 @@ function safeParseMeta(meta) {
 
 router.post("/register", async (req, res) => {
   try {
+    // Si el body es un array (por importación masiva desde Excel), lo procesamos en lote
     const payload = Array.isArray(req.body) ? req.body : [req.body];
 
-    // Detectar PWs duplicados dentro del mismo lote
-    const pwValues = payload.map(u => u.pw);
+    //  Detectar duplicados dentro del mismo lote
+    const pwValues = payload.map((u) => u.pw);
     const duplicates = pwValues.filter((pw, i) => pwValues.indexOf(pw) !== i);
     if (duplicates.length > 0) {
-      return res.status(400).json({ error: `PWs duplicados en el archivo: ${[...new Set(duplicates)].join(", ")}` });
+      return res.status(400).json({
+        error: `PWs duplicados en el archivo: ${[...new Set(duplicates)].join(", ")}`,
+      });
     }
 
-    // Verificar si alguno de los PW ya existe en la BD
+    //  Verificar si alguno de los PW ya existe en la base de datos
     const existingUsers = await User.findAll({
       where: { pw: pwValues },
-      attributes: ["pw"]
+      attributes: ["pw"],
     });
+
     if (existingUsers.length > 0) {
-      const existingPWs = existingUsers.map(u => u.pw);
-      return res.status(400).json({ error: `Ya existen los siguientes PW: ${existingPWs.join(", ")}` });
+      const existingPWs = existingUsers.map((u) => u.pw);
+      return res.status(400).json({
+        error: `Ya existen los siguientes PW: ${existingPWs.join(", ")}`,
+      });
     }
 
-    // Preparar datos
-    const usersToCreate = await Promise.all(payload.map(async (user) => {
-      const hashedPassword = await bcrypt.hash(user.password, 10);
-      const cleanMeta = safeParseMeta(user.meta);
+    // 3 Preparar los datos a crear
+    const usersToCreate = await Promise.all(
+      payload.map(async (user) => {
+        const cleanMeta = safeParseMeta(user.meta);
 
-      return {
-        nombre: user.nombre,
-        email: user.email || null,
-        password: hashedPassword,
-        rol: user.rol || "user",
-        pw: user.pw,
-        mustChangePassword: true,
-        meta: JSON.stringify(cleanMeta),
-      };
-    }));
+        // Si el rol es ADMIN → requiere contraseña
+        if (user.rol === "admin") {
+          if (!user.password || user.password.trim() === "") {
+            throw new Error(`El usuario con PW "${user.pw}" requiere una contraseña`);
+          }
 
+          const hashedPassword = await bcrypt.hash(user.password, 10);
+          return {
+            nombre: user.nombre,
+            email: user.email || null,
+            password: hashedPassword,
+            rol: "admin",
+            pw: user.pw,
+            mustChangePassword: true,
+            meta: JSON.stringify(cleanMeta),
+          };
+        }
+
+        // Si el rol NO es admin  no requiere contraseña
+        return {
+          nombre: user.nombre,
+          email: user.email || null,
+          password: null, // sin contraseña
+          rol: user.rol || "user",
+          pw: user.pw,
+          mustChangePassword: false,
+          meta: JSON.stringify(cleanMeta),
+        };
+      })
+    );
+
+    // 4️ Insertar todos los usuarios (o "cards") en la base de datos
     const created = await User.bulkCreate(usersToCreate);
 
     res.status(201).json({
-      message: `Se crearon ${created.length} usuario(s) correctamente`,
+      message: `Se crearon ${created.length} registro(s) correctamente`,
       users: created,
     });
   } catch (error) {
     console.error("Error al registrar usuario(s):", error);
-    res.status(500).json({ error: "Error al registrar los usuarios" });
+    res.status(500).json({
+      error: error.message || "Error al registrar los usuarios",
+    });
   }
 });
 
