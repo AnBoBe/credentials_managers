@@ -8,7 +8,8 @@ function App() {
 
   useEffect(() => {
     const savedRole = localStorage.getItem("userRole");
-    if (savedRole) setUserRole(savedRole);
+    if (savedRole) setUserRole(null);
+    else setUserRole(savedRole);
   }, []);
 
   return <AppRouter userRole={userRole} setUserRole={setUserRole} />;

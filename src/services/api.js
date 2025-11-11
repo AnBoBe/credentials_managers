@@ -5,9 +5,6 @@ function getAuthHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// ==========================
-// USUARIOS
-// ==========================
 
 // Obtener todos los usuarios
 export async function fetchUsers() {

@@ -53,12 +53,11 @@ function safeParseMeta(meta) {
   }
 }
 
+
 router.post("/register", async (req, res) => {
   try {
-    // Si el body es un array (por importación masiva desde Excel), lo procesamos en lote
     const payload = Array.isArray(req.body) ? req.body : [req.body];
 
-    //  Detectar duplicados dentro del mismo lote
     const pwValues = payload.map((u) => u.pw);
     const duplicates = pwValues.filter((pw, i) => pwValues.indexOf(pw) !== i);
     if (duplicates.length > 0) {
@@ -67,7 +66,6 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    //  Verificar si alguno de los PW ya existe en la base de datos
     const existingUsers = await User.findAll({
       where: { pw: pwValues },
       attributes: ["pw"],
@@ -80,17 +78,14 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Preparar los datos a crear
     const usersToCreate = await Promise.all(
       payload.map(async (user) => {
         const cleanMeta = safeParseMeta(user.meta);
 
-        // Si el rol es ADMIN requiere contraseña
         if (user.rol === "admin") {
           if (!user.password || user.password.trim() === "") {
             throw new Error(`El usuario con PW "${user.pw}" requiere una contraseña`);
           }
-
           const hashedPassword = await bcrypt.hash(user.password, 10);
           return {
             nombre: user.nombre,
@@ -103,11 +98,10 @@ router.post("/register", async (req, res) => {
           };
         }
 
-        // Si el rol NO es admin no requiere contraseña
         return {
           nombre: user.nombre,
           email: user.email || null,
-          password: null, // sin contraseña
+          password: null,
           rol: user.rol || "user",
           pw: user.pw,
           mustChangePassword: false,
@@ -116,7 +110,6 @@ router.post("/register", async (req, res) => {
       })
     );
 
-    // Insertar todos los usuarios en la base de datos
     const created = await User.bulkCreate(usersToCreate);
 
     res.status(201).json({
@@ -132,38 +125,37 @@ router.post("/register", async (req, res) => {
 });
 
 
-router.post("/login", async (req, res) => {
+// Verificar PW después de autenticación Microsoft
+router.post("/verify-pw", async (req, res) => {
   try {
-    const { pw, password } = req.body;
+    const { pw } = req.body;
+    if (!pw) return res.status(400).json({ error: "El campo PW es obligatorio." });
 
     const user = await User.findOne({ where: { pw } });
-    if (!user) return res.status(401).json({ error: "Credenciales incorrectas" });
+    if (!user) return res.status(404).json({ error: "PW no encontrado." });
 
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) return res.status(401).json({ error: "Credenciales incorrectas" });
+    //  Si no es admin, no permitir el avance
+    if (user.rol !== "admin") {
+      return res.status(403).json({ error: "Acceso denegado: solo los administradores pueden continuar." });
+    }
 
+    // Generar token nuevo y devolver rol
     const token = jwt.sign(
-      { id: user.id, rol: user.rol, nombre: user.nombre },
+      { id: user.id, email: user.email, rol: user.rol },
       SECRET_KEY,
       { expiresIn: "8h" }
     );
 
-    res.json({
-      message: "Login exitoso",
-      token,
-      user: {
-        id: user.id,
-        nombre: user.nombre,
-        rol: user.rol,
-        pw: user.pw,
-      },
-    });
-  } catch (error) {
-    console.error("Error en login:", error);
-    res.status(500).json({ error: "Error en el login" });
+    res.json({ message: "PW verificado con éxito", rol: user.rol, token });
+  } catch (err) {
+    console.error("Error en /verify-pw:", err);
+    res.status(500).json({ error: "Error interno al verificar PW." });
   }
 });
 
+
+
+// Get obtiene todos los usuarios ruta protegida
 router.get("/", verifyToken, async (req, res) => {
   try {
     if (req.user.rol === "admin") {

@@ -26,7 +26,6 @@ const Home = ({ userRole, setUserRole }) => {
 const [form, setForm] = useState({
   nombre: "",
   email: "",
-  password: "",
   rol: "user",
   pw: "",
   meta: {
@@ -151,7 +150,7 @@ const submitCreate = async () => {
     const payload = {
       nombre: form.nombre,
       email: form.email,
-      password: form.password || null, // puede ir vacío si no es admin
+      password: form.password || null, 
       rol: form.rol,
       pw: form.pw,
       meta: form.meta
@@ -165,7 +164,6 @@ const submitCreate = async () => {
     setForm({
       nombre: "",
       email: "",
-      password: "",
       rol: "user",
       pw: "",
       meta: {
@@ -184,11 +182,27 @@ const submitCreate = async () => {
  
 
 const handleLogout = () => {
+  // Eliminar todos los datos locales relacionados con la sesión
   localStorage.removeItem("token");
+  localStorage.removeItem("microsoftToken"); //limpiar token de Microsoft
   localStorage.removeItem("userRole");
-  setUserRole(null);
-  navigate("/login");
+
+  
+  const tenantId =
+    import.meta.env.VITE_MS_TENANT_ID ;
+
+  // Redirección después del cierre de sesión
+  const postLogoutRedirect = encodeURIComponent(
+    window.location.origin + "/login"
+  );
+
+  // URL de cierre de sesión de Microsoft
+  const logoutUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/logout?post_logout_redirect_uri=${postLogoutRedirect}`;
+
+  // Redirigir al endpoint de cierre de sesión de Microsoft
+  window.location.href = logoutUrl;
 };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-darkgray">
@@ -256,10 +270,7 @@ const handleLogout = () => {
                 <label className="block text-sm">Nombre</label>
                 <input value={form.nombre} onChange={e => handleFormChange("nombre", e.target.value)} className="w-full border px-2 py-1 rounded" />
               </div>
-              <div>
-                <label className="block text-sm">Contraseña</label>
-                <input value={form.password} onChange={e => handleFormChange("password", e.target.value)} className="w-full border px-2 py-1 rounded" />
-              </div>
+            
               <div>
   <label className="block text-sm font-medium">PW</label>
   <input

@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/login";
+import VerifyPW from "../pages/verifyPW";
 import Home from "../pages/home";
 import Credentials from "../pages/credentials";
 import EditCredentials from "../components/editCredentials";
@@ -10,19 +11,16 @@ const AppRouter = ({ userRole, setUserRole }) => {
 
   return (
     <Routes>
-      {/* Login */}
       <Route
         path="/login"
-        element={
-          isAuthenticated ? (
-            <Navigate to="/home" replace />
-          ) : (
-            <Login setUserRole={setUserRole} />
-          )
-        }
+        element={isAuthenticated ? <Navigate to="/home" replace /> : <Login />}
       />
 
-      {/* Home protegida */}
+      <Route
+        path="/verify-pw"
+        element={<VerifyPW setUserRole={setUserRole} />}
+      />
+
       <Route
         path="/home"
         element={
@@ -34,7 +32,6 @@ const AppRouter = ({ userRole, setUserRole }) => {
         }
       />
 
-      {/* Credenciales protegidas */}
       <Route
         path="/credentials/:id"
         element={
@@ -46,7 +43,6 @@ const AppRouter = ({ userRole, setUserRole }) => {
         }
       />
 
-      {/* Edición de credenciales (solo admin) */}
       <Route
         path="/edit-credentials/:id"
         element={
@@ -58,7 +54,6 @@ const AppRouter = ({ userRole, setUserRole }) => {
         }
       />
 
-      {/* Redirección por defecto */}
       <Route path="/*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
