@@ -80,12 +80,12 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // 3 Preparar los datos a crear
+    // Preparar los datos a crear
     const usersToCreate = await Promise.all(
       payload.map(async (user) => {
         const cleanMeta = safeParseMeta(user.meta);
 
-        // Si el rol es ADMIN → requiere contraseña
+        // Si el rol es ADMIN requiere contraseña
         if (user.rol === "admin") {
           if (!user.password || user.password.trim() === "") {
             throw new Error(`El usuario con PW "${user.pw}" requiere una contraseña`);
@@ -103,7 +103,7 @@ router.post("/register", async (req, res) => {
           };
         }
 
-        // Si el rol NO es admin  no requiere contraseña
+        // Si el rol NO es admin no requiere contraseña
         return {
           nombre: user.nombre,
           email: user.email || null,
@@ -116,7 +116,7 @@ router.post("/register", async (req, res) => {
       })
     );
 
-    // 4️ Insertar todos los usuarios (o "cards") en la base de datos
+    // Insertar todos los usuarios en la base de datos
     const created = await User.bulkCreate(usersToCreate);
 
     res.status(201).json({

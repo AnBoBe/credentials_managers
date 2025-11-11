@@ -1,4 +1,4 @@
-// backend/fixTradeeuMeta.js
+
 import sequelize from "./database/database.js";
 import User from "./models/user.js";
 

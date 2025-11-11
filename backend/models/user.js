@@ -9,6 +9,7 @@ const User = sequelize.define("User", {
   email: {
     type: DataTypes.STRING,
     allowNull: true,
+    unique: true,
     validate: {
       isEmailOrEmpty(value) {
         if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
@@ -41,6 +42,11 @@ const User = sequelize.define("User", {
   meta: {
     type: DataTypes.STRING,
     allowNull: true,
+  },
+  microsoftId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true,
   },
 });
 

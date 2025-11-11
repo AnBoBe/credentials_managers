@@ -17,7 +17,7 @@ const ImportExcelUsers = ({ onFinish }) => {
     setProgress(0);
 
     try {
-      const fileData = await file.arrayBuffer(); // nombre cambiado
+      const fileData = await file.arrayBuffer(); 
       const workbook = XLSX.read(fileData);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet);

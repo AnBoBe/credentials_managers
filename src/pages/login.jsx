@@ -5,20 +5,36 @@ import Footer from "../components/footer";
 
 const Login = ({ setUserRole }) => {
   const navigate = useNavigate();
-  const [pw, setPw] = useState("");             
+  const [pw, setPw] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (token) {
+    // Si viene un token desde Microsoft en la URLguardarlo
+    const params = new URLSearchParams(window.location.search);
+    const tokenFromMicrosoft = params.get("token");
+
+    if (tokenFromMicrosoft) {
+      localStorage.setItem("token", tokenFromMicrosoft);
+      try {
+        const tokenParts = tokenFromMicrosoft.split(".");
+        const payload = JSON.parse(atob(tokenParts[1]));
+        setUserRole(payload.rol || "user");
+        localStorage.setItem("userRole", payload.rol || "user");
+        navigate("/home");
+      } catch (err) {
+        console.error("Error procesando token de Microsoft:", err);
+        localStorage.removeItem("token");
+      }
+    } else if (token) {
+      // Si ya hay un token local, navegar directamente
       try {
         const tokenParts = token.split(".");
         const payload = JSON.parse(atob(tokenParts[1]));
         setUserRole(payload.rol);
         localStorage.setItem("userRole", payload.rol);
-
         if (window.location.pathname === "/login") {
           navigate("/home");
         }
@@ -40,10 +56,10 @@ const Login = ({ setUserRole }) => {
     }
 
     try {
-      const res = await fetch("http://172.22.7.106:4000/api/user/login", {
+      const res = await fetch("http://192.168.1.239:4000/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pw, password }), 
+        body: JSON.stringify({ pw, password }),
       });
 
       const data = await res.json();
@@ -55,11 +71,9 @@ const Login = ({ setUserRole }) => {
       }
 
       localStorage.setItem("token", data.token);
-
       const tokenParts = data.token.split(".");
       const payload = JSON.parse(atob(tokenParts[1]));
       const role = payload.rol;
-
       localStorage.setItem("userRole", role);
       setUserRole(role);
 
@@ -68,6 +82,11 @@ const Login = ({ setUserRole }) => {
       console.error("Error en login:", err);
       setError(err.message || "Error al iniciar sesión");
     }
+  };
+
+  const handleMicrosoftLogin = () => {
+   window.location.href = `${import.meta.env.VITE_API_URL || "http://192.168.1.239:4000"}/api/auth/microsoft/login`;
+
   };
 
   return (
@@ -122,9 +141,16 @@ const Login = ({ setUserRole }) => {
 
             <button
               onClick={handleLogin}
-              className="text-white bg-red-700 border-0 py-2 px-8 focus:outline-none hover:bg-red-800 rounded text-lg"
+              className="text-white bg-red-700 border-0 py-2 px-8 focus:outline-none hover:bg-red-800 rounded text-lg mb-3"
             >
               Entrar
+            </button>
+
+            <button
+              onClick={handleMicrosoftLogin}
+              className="text-white bg-blue-700 border-0 py-2 px-8 focus:outline-none hover:bg-blue-800 rounded text-lg"
+            >
+              Iniciar con Microsoft
             </button>
 
             <p className="text-xs text-gray-500 mt-3">

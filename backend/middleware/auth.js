@@ -10,7 +10,7 @@ export function verifyToken(req, res, next) {
   const token = authHeader.split(" ")[1];
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
-    req.user = decoded; // guardamos los datos del usuario logueado
+    req.user = decoded;
     next();
   } catch (error) {
     console.error("Error al verificar token:", error);

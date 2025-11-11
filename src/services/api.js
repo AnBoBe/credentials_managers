@@ -1,13 +1,17 @@
-const API_BASE = `${import.meta.env.VITE_API_URL || "http://172.22.7.106:4000"}/api/user`;
+const API_BASE = `${import.meta.env.VITE_API_URL || "http://192.168.1.239:4000"}/api`;
 
 function getAuthHeader() {
   const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+// ==========================
+// USUARIOS
+// ==========================
+
 // Obtener todos los usuarios
 export async function fetchUsers() {
-  const res = await fetch(`${API_BASE}`, {
+  const res = await fetch(`${API_BASE}/user`, {
     headers: {
       "Content-Type": "application/json",
       ...getAuthHeader(),
@@ -19,7 +23,7 @@ export async function fetchUsers() {
 
 // Obtener usuario por ID
 export async function fetchUserById(id) {
-  const res = await fetch(`${API_BASE}/${id}`, {
+  const res = await fetch(`${API_BASE}/user/${id}`, {
     headers: {
       "Content-Type": "application/json",
       ...getAuthHeader(),
@@ -31,32 +35,28 @@ export async function fetchUserById(id) {
 
 // Crear usuario(s)
 export async function createUser(payload) {
-  const res = await fetch(`${API_BASE}/register`, {
+  const res = await fetch(`${API_BASE}/user/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...getAuthHeader(),
     },
-    //  Si payload es un array, el backend lo entenderá automáticamente
     body: JSON.stringify(payload),
   });
 
   const data = await res.json();
-
   if (!res.ok) {
     throw new Error(data.error || "Error al crear usuario(s)");
   }
-
   return data;
 }
-// Login 
-export async function loginUser(pw) {
-  const res = await fetch("http://172.22.7.106:4000/api/user/login", {
+
+// Login normal
+export async function loginUser(pw, password) {
+  const res = await fetch(`${API_BASE}/user/login`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ pw }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pw, password }),
   });
 
   const data = await res.json();
@@ -64,37 +64,36 @@ export async function loginUser(pw) {
   return data;
 }
 
+// Actualizar usuario
 export const updateUser = async (id, data) => {
-  const token = localStorage.getItem("token");
-  const base = import.meta.env.VITE_API_URL || "http://172.22.7.106:4000";
-  const res = await fetch(`${base}/api/user/${id}`, {
+  const res = await fetch(`${API_BASE}/user/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...getAuthHeader(),
     },
     body: JSON.stringify(data),
   });
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || "Error al actualizar usuario");
   }
+
   return res.json();
 };
+
 // Eliminar usuario
 export async function deleteUser(id) {
-  const token = localStorage.getItem("token");
-  const base = import.meta.env.VITE_API_URL || "http://172.22.7.106:4000";
-  const url = `${base}/api/user/${id}`;
-
-  console.log("[deleteUser] URL:", url, "Token:", token);
+  const url = `${API_BASE}/user/${id}`;
+  console.log("[deleteUser] URL:", url);
 
   try {
     const res = await fetch(url, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...getAuthHeader(),
       },
     });
 
@@ -112,4 +111,18 @@ export async function deleteUser(id) {
     console.error("[deleteUser] Exception:", err);
     throw err;
   }
+}
+
+
+// MICROSOFT LOGIN
+
+export async function verifyMicrosoftLogin(token) {
+  const res = await fetch(`${API_BASE}/auth/microsoft/verify`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("Error verificando autenticación Microsoft");
+  return await res.json();
 }

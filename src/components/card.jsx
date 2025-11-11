@@ -6,38 +6,25 @@ export default function Card({ user, userRole, handleDelete, handleGo }) {
 
   const handleDeleteClick = async (e) => {
     e.stopPropagation();
- 
-
     const userId = user?.id;
- 
-
     if (!userId) {
- 
       alert("ID de usuario inválido");
       return;
     }
-
     const confirmed = window.confirm(`¿Eliminar usuario ${user.nombre}?`);
     if (!confirmed) {
- 
       return;
     }
-
     try {
- 
       const result = await deleteUser(userId);
- 
       if (typeof handleDelete === "function") {
         handleDelete(userId);
       } else {
- 
       }
     } catch (err) {
- 
       alert(err.message || "Error al eliminar usuario");
     }
   };
-
   return (
     <div className="border rounded-xl shadow-md p-4 text-center relative bg-white hover:shadow-lg transition">
       {userRole === "admin" && (
