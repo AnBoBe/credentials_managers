@@ -85,22 +85,7 @@ router.post("/register", async (req, res) => {
       payload.map(async (user) => {
         const cleanMeta = safeParseMeta(user.meta);
 
-        if (user.rol === "admin") {
-          if (!user.password || user.password.trim() === "") {
-            throw new Error(`El usuario con PW "${user.pw}" requiere una contraseña`);
-          }
-          const hashedPassword = await bcrypt.hash(user.password, 10);
-          return {
-            nombre: user.nombre,
-            email: user.email || null,
-            password: hashedPassword,
-            rol: "admin",
-            pw: user.pw,
-            mustChangePassword: true,
-            meta: JSON.stringify(cleanMeta),
-          };
-        }
-
+     
         return {
           nombre: user.nombre,
           email: user.email || null,
