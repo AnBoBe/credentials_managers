@@ -92,7 +92,7 @@ const Credentials = ({ userRole, setUserRole }) => {
       }
 
       // Detectar campos de tipo contraseña
-      const isPassword = /contraseña|pw|secret_extension/i.test(key);
+      const isPassword = /contraseña|secret_extension/i.test(key);
 
       return (
         <div key={key} className="flex items-center gap-2 text-sm">

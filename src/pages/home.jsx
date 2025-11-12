@@ -142,10 +142,6 @@ const submitCreate = async () => {
     return;
   }
 
-  if (form.rol === "admin" && !form.password) {
-    setError("La contraseña es obligatoria para administradores");
-    return;
-  }
 
   setCreating(true);
   try {
