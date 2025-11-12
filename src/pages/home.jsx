@@ -42,7 +42,7 @@ const [form, setForm] = useState({
       correo: "",
       contraseña: "",
       DID_Voiso: { correo: "", contraseña: "" },
-      Voicespin: { agent: "", pw: "", secret_extension: "" }, // ✅ corregido
+      Voicespin: { agent: "", pw: "", secret_extension: "" }, 
       omni: { usuario: "", contraseña: "" }
     },
     CAPITALIX: {

@@ -80,7 +80,7 @@ const Credentials = ({ userRole, setUserRole }) => {
       return <p className="text-gray-400 text-sm">Sin datos</p>;
 
     return Object.entries(obj).map(([key, value]) => {
-      if (key.toLowerCase() === "teams") return null; // eliminar teams
+      if (key.toLowerCase() === "teams") return null; 
 
       if (typeof value === "object" && value !== null) {
         return (

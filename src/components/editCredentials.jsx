@@ -40,7 +40,7 @@ const EditCredentials = ({ userRole, setUserRole }) => {
     correo: "",
     contraseña: "",
     DID_Voiso: { correo: "", contraseña: "" },
-    Voicespin: { agent: "", ext: "", secret_extension: "" }, // <-- ADICIÓN
+    Voicespin: { agent: "", ext: "", secret_extension: "" }, 
     omni: { usuario: "", contraseña: "" },
     crm: { correo: "", contraseña: "" },
   },

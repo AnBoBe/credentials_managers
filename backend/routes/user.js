@@ -30,11 +30,11 @@ function safeParseMeta(meta) {
         correo: "",
         contraseña: "",
         DID_Voiso: { correo: "", contraseña: "" },
-        Voicespin: { agent: "", ext: "", secret_extension: "" }, // <-- ADICIÓN
+        Voicespin: { agent: "", ext: "", secret_extension: "" }, 
         omni: { usuario: "", contraseña: "" },
         ...meta.ALGOBI,
         DID_Voiso: { ...meta.ALGOBI?.DID_Voiso },
-        Voicespin: { ...meta.ALGOBI?.Voicespin }, // <-- ADICIÓN
+        Voicespin: { ...meta.ALGOBI?.Voicespin }, 
         omni: { ...meta.ALGOBI?.omni },
       },
       CAPITALIX: {
@@ -85,7 +85,7 @@ router.post("/register", async (req, res) => {
       payload.map(async (user) => {
         const cleanMeta = safeParseMeta(user.meta);
 
-     
+   
         return {
           nombre: user.nombre,
           email: user.email || null,
