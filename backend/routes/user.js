@@ -30,9 +30,11 @@ function safeParseMeta(meta) {
         correo: "",
         contraseña: "",
         DID_Voiso: { correo: "", contraseña: "" },
+        Voicespin: { agent: "", ext: "", secret_extension: "" }, // <-- ADICIÓN
         omni: { usuario: "", contraseña: "" },
         ...meta.ALGOBI,
         DID_Voiso: { ...meta.ALGOBI?.DID_Voiso },
+        Voicespin: { ...meta.ALGOBI?.Voicespin }, // <-- ADICIÓN
         omni: { ...meta.ALGOBI?.omni },
       },
       CAPITALIX: {
@@ -52,6 +54,7 @@ function safeParseMeta(meta) {
     return {};
   }
 }
+
 
 
 router.post("/register", async (req, res) => {

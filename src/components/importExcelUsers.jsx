@@ -17,7 +17,7 @@ const ImportExcelUsers = ({ onFinish }) => {
     setProgress(0);
 
     try {
-      const fileData = await file.arrayBuffer(); 
+      const fileData = await file.arrayBuffer();
       const workbook = XLSX.read(fileData);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet);
@@ -60,6 +60,12 @@ const ImportExcelUsers = ({ onFinish }) => {
               DID_Voiso: {
                 correo: r["ALGOBI DID_Voiso Correo"] || "",
                 contraseña: r["ALGOBI DID_Voiso Contraseña"] || "",
+              },
+              Voicespin: {
+                agent: r["ALGOBI Voicespin Agent"] || "",
+                pw: r["ALGOBI Voicespin PW"] || "",
+                secret_extension:
+                  r["ALGOBI Voicespin Secret Extension"] || "",
               },
               omni: {
                 usuario: r["ALGOBI Omni Usuario"] || "",
@@ -104,7 +110,9 @@ const ImportExcelUsers = ({ onFinish }) => {
 
   return (
     <div className="flex flex-col items-center p-4 border rounded-lg bg-gray-100 text-black w-full max-w-lg mx-auto">
-      <h3 className="text-lg font-semibold mb-2">Importar usuarios desde Excel</h3>
+      <h3 className="text-lg font-semibold mb-2">
+        Importar usuarios desde Excel
+      </h3>
       <input
         type="file"
         accept=".xlsx,.xls"

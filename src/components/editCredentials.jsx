@@ -26,32 +26,34 @@ const EditCredentials = ({ userRole, setUserRole }) => {
         }
 
         const normalizedMeta = {
-          tradeeu: meta.tradeeu || {
-            teams: "",
-            correo: "",
-            contraseña: "",
-            DID_Voiso: { correo: "", contraseña: "" },
-            Voicespin: { agent: "", ext: "", secret_extension: "" },
-            omni: { usuario: "", contraseña: "" },
-            crm: { correo: "", contraseña: "" },
-          },
-          ALGOBI: meta.ALGOBI || {
-            teams: "",
-            correo: "",
-            contraseña: "",
-            DID_Voiso: { correo: "", contraseña: "" },
-            omni: { usuario: "", contraseña: "" },
-            crm: { correo: "", contraseña: "" },
-          },
-          CAPITALIX: meta.CAPITALIX || {
-            teams: "",
-            correo: "",
-            contraseña: "",
-            DID_Voiso: { correo: "", contraseña: "" },
-            Voicespin: { agent: "", ext: "", secret_extension: "" },
-            crm: { correo: "", contraseña: "" },
-          },
-        };
+  tradeeu: meta.tradeeu || {
+    teams: "",
+    correo: "",
+    contraseña: "",
+    DID_Voiso: { correo: "", contraseña: "" },
+    Voicespin: { agent: "", ext: "", secret_extension: "" },
+    omni: { usuario: "", contraseña: "" },
+    crm: { correo: "", contraseña: "" },
+  },
+  ALGOBI: meta.ALGOBI || {
+    teams: "",
+    correo: "",
+    contraseña: "",
+    DID_Voiso: { correo: "", contraseña: "" },
+    Voicespin: { agent: "", ext: "", secret_extension: "" }, // <-- ADICIÓN
+    omni: { usuario: "", contraseña: "" },
+    crm: { correo: "", contraseña: "" },
+  },
+  CAPITALIX: meta.CAPITALIX || {
+    teams: "",
+    correo: "",
+    contraseña: "",
+    DID_Voiso: { correo: "", contraseña: "" },
+    Voicespin: { agent: "", ext: "", secret_extension: "" },
+    crm: { correo: "", contraseña: "" },
+  },
+};
+
 
         setForm({
           id: data.id,

@@ -42,6 +42,7 @@ const [form, setForm] = useState({
       correo: "",
       contraseña: "",
       DID_Voiso: { correo: "", contraseña: "" },
+      Voicespin: { agent: "", pw: "", secret_extension: "" }, // ✅ corregido
       omni: { usuario: "", contraseña: "" }
     },
     CAPITALIX: {
@@ -53,6 +54,7 @@ const [form, setForm] = useState({
     }
   }
 });
+
 
 
   const [error, setError] = useState("");
@@ -399,83 +401,105 @@ const handleLogout = () => {
     </div>
   </div>
 
-  {/* ALGOBI */}
-  <div className="mt-6">
-    <h3 className="text-lg font-semibold">ALGOBI</h3>
+ { /* ALGOBI */}
+<div className="border p-4 rounded">
+  <h3 className="text-lg font-semibold mb-2 text-green-700">ALGOBI</h3>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-      <h4 className="font-medium">teams</h4>
-      <input
-        placeholder="correo"
-        value={form.meta.ALGOBI.correo}
-        onChange={e => handleFormChange("meta.ALGOBI.correo", e.target.value)}
-        className="border px-2 py-1 rounded"
-      />
-      <input
-        placeholder="contraseña"
-        value={form.meta.ALGOBI.contraseña}
-        onChange={e => handleFormChange("meta.ALGOBI.contraseña", e.target.value)}
-        className="border px-2 py-1 rounded"
-      />
-    </div>
+  <label className="block text-sm font-medium">Correo</label>
+  <input
+    type="text"
+    value={form.meta.ALGOBI.correo}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        meta: {
+          ...form.meta,
+          ALGOBI: { ...form.meta.ALGOBI, correo: e.target.value },
+        },
+      })
+    }
+    className="w-full border rounded px-2 py-1 mb-2"
+  />
 
-    {/* CRM */}
-    <div className="mt-2">
-      <h4 className="font-medium">CRM</h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-        <input
-          placeholder="correo"
-          value={form.meta.ALGOBI.crm?.correo || ""}
-          onChange={e => handleFormChange("meta.ALGOBI.crm.correo", e.target.value)}
-          className="border px-2 py-1 rounded"
-        />
-        <input
-          placeholder="contraseña"
-          value={form.meta.ALGOBI.crm?.contraseña || ""}
-          onChange={e => handleFormChange("meta.ALGOBI.crm.contraseña", e.target.value)}
-          className="border px-2 py-1 rounded"
-        />
-      </div>
-    </div>
+  <label className="block text-sm font-medium">Contraseña</label>
+  <input
+    type="password"
+    value={form.meta.ALGOBI.contraseña}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        meta: {
+          ...form.meta,
+          ALGOBI: { ...form.meta.ALGOBI, contraseña: e.target.value },
+        },
+      })
+    }
+    className="w-full border rounded px-2 py-1 mb-2"
+  />
 
-    {/* DID (Voiso) */}
-    <div className="mt-2">
-      <h4 className="font-medium">DID (Voiso)</h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-        <input
-          placeholder="correo"
-          value={form.meta.ALGOBI.DID_Voiso?.correo || ""}
-          onChange={e => handleFormChange("meta.ALGOBI.DID_Voiso.correo", e.target.value)}
-          className="border px-2 py-1 rounded"
-        />
-        <input
-          placeholder="contraseña"
-          value={form.meta.ALGOBI.DID_Voiso?.contraseña || ""}
-          onChange={e => handleFormChange("meta.ALGOBI.DID_Voiso.contraseña", e.target.value)}
-          className="border px-2 py-1 rounded"
-        />
-      </div>
-    </div>
+  {/* Voicespin */}
+  <h4 className="text-md font-semibold mt-3 mb-1">Voicespin</h4>
 
-    {/* omni */}
-    <div className="mt-2">
-      <h4 className="font-medium">omni</h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-        <input
-          placeholder="usuario"
-          value={form.meta.ALGOBI.omni?.usuario || ""}
-          onChange={e => handleFormChange("meta.ALGOBI.omni.usuario", e.target.value)}
-          className="border px-2 py-1 rounded"
-        />
-        <input
-          placeholder="contraseña"
-          value={form.meta.ALGOBI.omni?.contraseña || ""}
-          onChange={e => handleFormChange("meta.ALGOBI.omni.contraseña", e.target.value)}
-          className="border px-2 py-1 rounded"
-        />
-      </div>
-    </div>
-  </div>
+  <label className="block text-sm font-medium">Agent</label>
+  <input
+    type="text"
+    value={form.meta.ALGOBI.Voicespin.agent}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        meta: {
+          ...form.meta,
+          ALGOBI: {
+            ...form.meta.ALGOBI,
+            Voicespin: { ...form.meta.ALGOBI.Voicespin, agent: e.target.value },
+          },
+        },
+      })
+    }
+    className="w-full border rounded px-2 py-1 mb-2"
+  />
+
+  <label className="block text-sm font-medium">PW</label>
+  <input
+    type="password"
+    value={form.meta.ALGOBI.Voicespin.pw}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        meta: {
+          ...form.meta,
+          ALGOBI: {
+            ...form.meta.ALGOBI,
+            Voicespin: { ...form.meta.ALGOBI.Voicespin, pw: e.target.value },
+          },
+        },
+      })
+    }
+    className="w-full border rounded px-2 py-1 mb-2"
+  />
+
+  <label className="block text-sm font-medium">Secret Extension</label>
+  <input
+    type="password"
+    value={form.meta.ALGOBI.Voicespin.secret_extension}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        meta: {
+          ...form.meta,
+          ALGOBI: {
+            ...form.meta.ALGOBI,
+            Voicespin: {
+              ...form.meta.ALGOBI.Voicespin,
+              secret_extension: e.target.value,
+            },
+          },
+        },
+      })
+    }
+    className="w-full border rounded px-2 py-1 mb-2"
+  />
+</div>
 
   {/* CAPITALIX */}
   <div className="mt-6">
