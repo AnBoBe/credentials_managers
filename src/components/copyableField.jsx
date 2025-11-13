@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { Copy, Eye, EyeOff } from "lucide-react";
 
-const CopyableField = ({ label, value = "", type = "text" }) => {
+const CopyableField = ({
+  label,
+  value = "",
+  type = "text",
+  hideToggle = false,
+}) => {
   const [visible, setVisible] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -13,8 +18,10 @@ const CopyableField = ({ label, value = "", type = "text" }) => {
   };
 
   const isPassword = type === "password";
+
+  // Mostrar siempre 8 puntos si es una contraseña y no está visible
   const displayValue =
-    isPassword && !visible ? "•".repeat(Math.max(value.length, 8)) : value;
+    isPassword && !visible ? "•".repeat(8) : value || "-";
 
   return (
     <div className="flex flex-col md:flex-row md:items-center gap-2 w-full">
@@ -26,11 +33,12 @@ const CopyableField = ({ label, value = "", type = "text" }) => {
 
       <div className="flex items-center flex-1 border border-gray-300 bg-white rounded-lg px-2 py-1">
         <span className="flex-1 truncate select-text text-sm">
-          {displayValue || "-"}
+          {displayValue}
         </span>
 
         <div className="flex items-center gap-1 ml-2">
-          {isPassword && (
+          {/* 🔒 Botón de mostrar/ocultar solo si no está oculto */}
+          {isPassword && !hideToggle && (
             <button
               onClick={() => setVisible(!visible)}
               className="p-1 hover:text-blue-600 transition"

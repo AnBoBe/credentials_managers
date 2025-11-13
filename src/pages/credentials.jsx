@@ -11,12 +11,13 @@ const Credentials = ({ userRole, setUserRole }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Redirigir si no hay sesión
   useEffect(() => {
     if (!userRole) navigate("/login", { replace: true });
   }, [userRole, navigate]);
 
   useEffect(() => {
-    const load = async () => {
+    const loadUser = async () => {
       try {
         const res = await fetch(
           `${
@@ -41,24 +42,75 @@ const Credentials = ({ userRole, setUserRole }) => {
           }
         }
 
-        const normalizedKeys = Object.fromEntries(
-          Object.entries(meta).map(([key, value]) => [key.toLowerCase(), value])
-        );
-
+        // ✅ Asegurar compatibilidad de mayúsculas/minúsculas
         const normalizedMeta = {
-          tradeeu: normalizedKeys.tradeeu || {},
-          algobi: normalizedKeys.algobi || {},
-          capitalix: normalizedKeys.capitalix || {},
+          tradeeu: meta.tradeeu || meta.TRADEEU || {},
+          algobi: meta.algobi || meta.ALGOBI || {},
+          capitalix: meta.capitalix || meta.CAPITALIX || {},
+        };
+
+        // ✅ Forzar estructura de objetos internos
+        const ensureCRM = (crm) => {
+          if (!crm || typeof crm !== "object") return { correo: "", contraseña: "" };
+          return {
+            correo: crm.correo || "",
+            contraseña: crm.contraseña || "",
+          };
+        };
+
+        const completeMeta = {
+          tradeeu: {
+            teams: normalizedMeta.tradeeu.teams || "",
+            correo: normalizedMeta.tradeeu.correo || "",
+            contraseña: normalizedMeta.tradeeu.contraseña || "",
+            DID_Voiso: normalizedMeta.tradeeu.DID_Voiso || { correo: "", contraseña: "" },
+            Voicespin: normalizedMeta.tradeeu.Voicespin || {
+              agent: "",
+              ext: "",
+              secret_extension: "",
+            },
+            omni: normalizedMeta.tradeeu.omni || { usuario: "", contraseña: "" },
+            crm: ensureCRM(normalizedMeta.tradeeu.crm),
+            winauth: normalizedMeta.tradeeu.winauth || "",
+          },
+          algobi: {
+            teams: normalizedMeta.algobi.teams || "",
+            correo: normalizedMeta.algobi.correo || "",
+            contraseña: normalizedMeta.algobi.contraseña || "",
+            DID_Voiso: normalizedMeta.algobi.DID_Voiso || { correo: "", contraseña: "" },
+            Voicespin: normalizedMeta.algobi.Voicespin || {
+              agent: "",
+              ext: "",
+              secret_extension: "",
+            },
+            omni: normalizedMeta.algobi.omni || { usuario: "", contraseña: "" },
+            // ✅ Forzar siempre crm.algobi a tener correo y contraseña
+            crm: ensureCRM(normalizedMeta.algobi.crm),
+            winauth: normalizedMeta.algobi.winauth || "",
+          },
+          capitalix: {
+            teams: normalizedMeta.capitalix.teams || "",
+            correo: normalizedMeta.capitalix.correo || "",
+            contraseña: normalizedMeta.capitalix.contraseña || "",
+            DID_Voiso: normalizedMeta.capitalix.DID_Voiso || { correo: "", contraseña: "" },
+            Voicespin: normalizedMeta.capitalix.Voicespin || {
+              agent: "",
+              ext: "",
+              secret_extension: "",
+            },
+            crm: ensureCRM(normalizedMeta.capitalix.crm),
+            // 🚫 Sin winauth en Capitalix
+          },
         };
 
         setUser({
           ...data,
           img: mmlogo,
-          meta: normalizedMeta,
+          meta: completeMeta,
           pw: data.pw || "",
         });
       } catch (err) {
-        console.error(err);
+        console.error("Error al cargar credenciales:", err);
         alert("Error al cargar credenciales");
         navigate("/home");
       } finally {
@@ -66,7 +118,7 @@ const Credentials = ({ userRole, setUserRole }) => {
       }
     };
 
-    load();
+    loadUser();
   }, [id, navigate]);
 
   if (loading) return <div className="p-6">Cargando...</div>;
@@ -74,13 +126,13 @@ const Credentials = ({ userRole, setUserRole }) => {
 
   const { meta } = user;
 
-  // Render recursivo de datos dentro de las columnas
+  // 🔁 Renderiza los datos recursivamente
   const renderData = (obj) => {
     if (!obj || Object.keys(obj).length === 0)
       return <p className="text-gray-400 text-sm">Sin datos</p>;
 
     return Object.entries(obj).map(([key, value]) => {
-      if (key.toLowerCase() === "teams") return null; 
+      if (key.toLowerCase() === "teams") return null;
 
       if (typeof value === "object" && value !== null) {
         return (
@@ -91,14 +143,15 @@ const Credentials = ({ userRole, setUserRole }) => {
         );
       }
 
-      // Detectar campos de tipo contraseña
-      const isPassword = /contraseña|secret_extension/i.test(key);
+      const isPassword = /contraseña|secret_extension|winauth/i.test(key);
 
       return (
-        <div key={key} className="flex items-center gap-2 text-sm">
-          <span className="font-medium">{key}:</span>
-          <CopyableField value={value} type={isPassword ? "password" : "text"} />
-        </div>
+        <CopyableField
+          key={key}
+          label={key}
+          value={value}
+          type={isPassword ? "password" : "text"}
+        />
       );
     });
   };
@@ -109,21 +162,18 @@ const Credentials = ({ userRole, setUserRole }) => {
       <main className="min-h-screen bg-darkgray text-black p-6">
         <div className="max-w-6xl mx-auto bg-white rounded-lg p-6 shadow">
           <div className="flex items-center justify-between mb-6">
-            {/* Datos principales */}
             <div className="flex items-center gap-4">
               <img
                 src={user.img}
                 alt={user.nombre}
                 className="w-24 h-24 object-cover rounded"
               />
-              <div className="flex flex-col gap-2">
+              <div>
                 <h2 className="text-2xl font-bold">{user.nombre}</h2>
-
-                {/* PW principal: solo texto, sin copiar */}
                 {user.pw && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="font-medium">PW:</span>
-                    <span className="text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                  <div className="text-sm">
+                    <span className="font-medium">PW:</span>{" "}
+                    <span className="bg-gray-100 px-2 py-1 rounded">
                       {user.pw}
                     </span>
                   </div>
@@ -143,36 +193,32 @@ const Credentials = ({ userRole, setUserRole }) => {
             Credenciales por Marca
           </h3>
 
-          {/* Columnas de credenciales */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="border rounded p-4">
-              <h4 className="text-lg font-bold mb-2 text-center text-blue-700">
+              <h4 className="text-lg font-bold text-center text-blue-700">
                 TradeEU
               </h4>
               {renderData(meta.tradeeu)}
             </div>
-
             <div className="border rounded p-4">
-              <h4 className="text-lg font-bold mb-2 text-center text-green-700">
+              <h4 className="text-lg font-bold text-center text-green-700">
                 ALGOBI
               </h4>
               {renderData(meta.algobi)}
             </div>
-
             <div className="border rounded p-4">
-              <h4 className="text-lg font-bold mb-2 text-center text-yellow-700">
+              <h4 className="text-lg font-bold text-center text-yellow-700">
                 CAPITALIX
               </h4>
               {renderData(meta.capitalix)}
             </div>
           </div>
 
-          {/* Botón editar */}
           {userRole === "admin" && (
             <div className="mt-8 flex justify-end">
               <button
                 onClick={() => navigate(`/edit-credentials/${user.id}`)}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
                 Editar Credenciales
               </button>

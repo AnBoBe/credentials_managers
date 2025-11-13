@@ -11,11 +11,12 @@ const EditCredentials = ({ userRole, setUserRole }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Cargar usuario por ID
+  // 🔹 Cargar usuario por ID
   useEffect(() => {
     const loadUser = async () => {
       try {
         const data = await fetchUserById(id);
+
         let meta = data.meta;
         if (typeof meta === "string") {
           try {
@@ -25,35 +26,42 @@ const EditCredentials = ({ userRole, setUserRole }) => {
           }
         }
 
-        const normalizedMeta = {
-  tradeeu: meta.tradeeu || {
-    teams: "",
-    correo: "",
-    contraseña: "",
-    DID_Voiso: { correo: "", contraseña: "" },
-    Voicespin: { agent: "", ext: "", secret_extension: "" },
-    omni: { usuario: "", contraseña: "" },
-    crm: { correo: "", contraseña: "" },
-  },
-  ALGOBI: meta.ALGOBI || {
-    teams: "",
-    correo: "",
-    contraseña: "",
-    DID_Voiso: { correo: "", contraseña: "" },
-    Voicespin: { agent: "", ext: "", secret_extension: "" }, 
-    omni: { usuario: "", contraseña: "" },
-    crm: { correo: "", contraseña: "" },
-  },
-  CAPITALIX: meta.CAPITALIX || {
-    teams: "",
-    correo: "",
-    contraseña: "",
-    DID_Voiso: { correo: "", contraseña: "" },
-    Voicespin: { agent: "", ext: "", secret_extension: "" },
-    crm: { correo: "", contraseña: "" },
-  },
-};
+        // 🔹 Normalizar claves a minúsculas
+        const normalizedKeys = Object.fromEntries(
+          Object.entries(meta).map(([key, value]) => [key.toLowerCase(), value])
+        );
 
+        // 🔹 Normalización garantizando estructura completa
+        const normalizedMeta = {
+          tradeeu: {
+            teams: normalizedKeys.tradeeu?.teams || "",
+            correo: normalizedKeys.tradeeu?.correo || "",
+            contraseña: normalizedKeys.tradeeu?.contraseña || "",
+            DID_Voiso: normalizedKeys.tradeeu?.DID_Voiso || { correo: "", contraseña: "" },
+            Voicespin: normalizedKeys.tradeeu?.Voicespin || { agent: "", ext: "", secret_extension: "" },
+            omni: normalizedKeys.tradeeu?.omni || { usuario: "", contraseña: "" },
+            crm: normalizedKeys.tradeeu?.crm || { correo: "", contraseña: "" },
+            winauth: normalizedKeys.tradeeu?.winauth || "",
+          },
+          algobi: {
+            teams: normalizedKeys.algobi?.teams || "",
+            correo: normalizedKeys.algobi?.correo || "",
+            contraseña: normalizedKeys.algobi?.contraseña || "",
+            DID_Voiso: normalizedKeys.algobi?.DID_Voiso || { correo: "", contraseña: "" },
+            Voicespin: normalizedKeys.algobi?.Voicespin || { agent: "", ext: "", secret_extension: "" },
+            omni: normalizedKeys.algobi?.omni || { usuario: "", contraseña: "" },
+            crm: normalizedKeys.algobi?.crm || { correo: "", contraseña: "" }, // ✅ forzado
+            winauth: normalizedKeys.algobi?.winauth || "",
+          },
+          capitalix: {
+            teams: normalizedKeys.capitalix?.teams || "",
+            correo: normalizedKeys.capitalix?.correo || "",
+            contraseña: normalizedKeys.capitalix?.contraseña || "",
+            DID_Voiso: normalizedKeys.capitalix?.DID_Voiso || { correo: "", contraseña: "" },
+            Voicespin: normalizedKeys.capitalix?.Voicespin || { agent: "", ext: "", secret_extension: "" },
+            crm: normalizedKeys.capitalix?.crm || { correo: "", contraseña: "" },
+          },
+        };
 
         setForm({
           id: data.id,
@@ -74,9 +82,10 @@ const EditCredentials = ({ userRole, setUserRole }) => {
     loadUser();
   }, [id, navigate]);
 
+  // 🔹 Actualizar campos
   const handleChange = (path, value) => {
     setForm((prev) => {
-      const updated = { ...prev };
+      const updated = structuredClone(prev);
       const keys = path.split(".");
       let ref = updated;
       for (let i = 0; i < keys.length - 1; i++) {
@@ -84,22 +93,41 @@ const EditCredentials = ({ userRole, setUserRole }) => {
         ref = ref[keys[i]];
       }
       ref[keys[keys.length - 1]] = value;
-      return { ...updated };
+      return updated;
     });
   };
 
+  // 🔹 Guardar datos sin borrar lo que no se modificó
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form) return;
     setSaving(true);
+
     try {
+      // 🔸 Crear meta con estructura garantizada
+      const safeMeta = {
+        tradeeu: {
+          ...form.meta.tradeeu,
+          crm: form.meta.tradeeu.crm || { correo: "", contraseña: "" },
+        },
+        algobi: {
+          ...form.meta.algobi,
+          crm: form.meta.algobi.crm || { correo: "", contraseña: "" }, // ✅ asegurado
+        },
+        capitalix: {
+          ...form.meta.capitalix,
+          crm: form.meta.capitalix.crm || { correo: "", contraseña: "" },
+        },
+      };
+
       await updateUser(form.id, {
         nombre: form.nombre,
         email: form.email,
         pw: form.pw,
         rol: form.rol,
-        meta: form.meta,
+        meta: safeMeta,
       });
+
       alert("Credenciales actualizadas correctamente");
       navigate(`/credentials/${form.id}`);
     } catch (err) {
@@ -113,35 +141,37 @@ const EditCredentials = ({ userRole, setUserRole }) => {
   if (loading) return <div className="p-6">Cargando...</div>;
   if (!form) return <div className="p-6">No se encontró el usuario</div>;
 
- const renderInputs = (obj, prefix = "") => {
-  return Object.entries(obj)
-    .filter(([key]) => key !== "teams" && key !== "email")
-    .map(([key, value]) => {
-      if (typeof value === "object" && value !== null) {
+  // 🔹 Render dinámico de inputs
+  const renderInputs = (obj, prefix = "") => {
+    return Object.entries(obj)
+      .filter(([key]) => key !== "teams" && key !== "email")
+      .map(([key, value]) => {
+        if (typeof value === "object" && value !== null) {
+          return (
+            <div key={prefix + key} className="ml-4 border-l pl-3 mt-2">
+              <h4 className="font-semibold text-gray-700 mt-2 mb-1">{key}</h4>
+              {renderInputs(value, `${prefix}${key}.`)}
+            </div>
+          );
+        }
+
+        const isPasswordField = /contraseña|secret_extension|winauth/i.test(key);
+
         return (
-          <div key={prefix + key} className="ml-4 border-l pl-3 mt-2">
-            <h4 className="font-semibold text-gray-700 mt-2 mb-1">{key}</h4>
-            {renderInputs(value, `${prefix}${key}.`)}
+          <div key={prefix + key} className="mb-2">
+            <label className="block text-sm font-medium text-gray-700">
+              {key}
+            </label>
+            <input
+              type={isPasswordField ? "password" : "text"}
+              value={value || ""}
+              onChange={(e) => handleChange(`${prefix}${key}`, e.target.value)}
+              className="w-full border rounded p-2 text-sm"
+            />
           </div>
         );
-      }
-      return (
-        <div key={prefix + key} className="mb-2">
-          <label className="block text-sm font-medium text-gray-700">
-            {key}
-          </label>
-          <input
-            type="text"
-            value={value || ""}
-            onChange={(e) =>
-              handleChange(`${prefix}${key}`, e.target.value)
-            }
-            className="w-full border rounded p-2 text-sm"
-          />
-        </div>
-      );
-    });
-};
+      });
+  };
 
   return (
     <>
@@ -163,7 +193,6 @@ const EditCredentials = ({ userRole, setUserRole }) => {
               />
             </div>
 
-          
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="border rounded p-4">
                 <h3 className="text-lg font-bold mb-2 text-center text-blue-700">
@@ -176,14 +205,14 @@ const EditCredentials = ({ userRole, setUserRole }) => {
                 <h3 className="text-lg font-bold mb-2 text-center text-green-700">
                   ALGOBI
                 </h3>
-                {renderInputs(form.meta.ALGOBI, "meta.ALGOBI.")}
+                {renderInputs(form.meta.algobi, "meta.algobi.")}
               </div>
 
               <div className="border rounded p-4">
                 <h3 className="text-lg font-bold mb-2 text-center text-yellow-700">
                   CAPITALIX
                 </h3>
-                {renderInputs(form.meta.CAPITALIX, "meta.CAPITALIX.")}
+                {renderInputs(form.meta.capitalix, "meta.capitalix.")}
               </div>
             </div>
 

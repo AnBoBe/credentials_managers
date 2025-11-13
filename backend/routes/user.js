@@ -9,10 +9,89 @@ const router = express.Router();
 
 function safeParseMeta(meta) {
   if (!meta) meta = {};
+
   try {
     meta = typeof meta === "string" ? JSON.parse(meta) : meta;
 
+    const m = {};
+    for (const key in meta) {
+      m[key.toLowerCase()] = meta[key];
+    }
+
     const normalized = {
+      tradeeu: {
+        teams: m.tradeeu?.teams || "",
+        correo: m.tradeeu?.correo || "",
+        contraseña: m.tradeeu?.contraseña || "",
+        DID_Voiso: {
+          correo: m.tradeeu?.DID_Voiso?.correo || "",
+          contraseña: m.tradeeu?.DID_Voiso?.contraseña || "",
+        },
+        Voicespin: {
+          agent: m.tradeeu?.Voicespin?.agent || "",
+          ext: m.tradeeu?.Voicespin?.ext || "",
+          secret_extension: m.tradeeu?.Voicespin?.secret_extension || "",
+        },
+        omni: {
+          usuario: m.tradeeu?.omni?.usuario || "",
+          contraseña: m.tradeeu?.omni?.contraseña || "",
+        },
+        crm: {
+          correo: m.tradeeu?.crm?.correo || "",
+          contraseña: m.tradeeu?.crm?.contraseña || "",
+        },
+        winauth: m.tradeeu?.winauth || "",
+      },
+
+      algobi: {
+        teams: m.algobi?.teams || "",
+        correo: m.algobi?.correo || "",
+        contraseña: m.algobi?.contraseña || "",
+        DID_Voiso: {
+          correo: m.algobi?.DID_Voiso?.correo || "",
+          contraseña: m.algobi?.DID_Voiso?.contraseña || "",
+        },
+        Voicespin: {
+          agent: m.algobi?.Voicespin?.agent || "",
+          ext: m.algobi?.Voicespin?.ext || "",
+          secret_extension: m.algobi?.Voicespin?.secret_extension || "",
+        },
+        omni: {
+          usuario: m.algobi?.omni?.usuario || "",
+          contraseña: m.algobi?.omni?.contraseña || "",
+        },
+        crm: {
+          correo: m.algobi?.crm?.correo || "",
+          contraseña: m.algobi?.crm?.contraseña || "",
+        },
+        winauth: m.algobi?.winauth || "",
+      },
+
+      capitalix: {
+        teams: m.capitalix?.teams || "",
+        correo: m.capitalix?.correo || "",
+        contraseña: m.capitalix?.contraseña || "",
+        DID_Voiso: {
+          correo: m.capitalix?.DID_Voiso?.correo || "",
+          contraseña: m.capitalix?.DID_Voiso?.contraseña || "",
+        },
+        Voicespin: {
+          agent: m.capitalix?.Voicespin?.agent || "",
+          ext: m.capitalix?.Voicespin?.ext || "",
+          secret_extension: m.capitalix?.Voicespin?.secret_extension || "",
+        },
+        crm: {
+          correo: m.capitalix?.crm?.correo || "",
+          contraseña: m.capitalix?.crm?.contraseña || "",
+        },
+        winauth: m.capitalix?.winauth || "",
+      },
+    };
+
+    return normalized;
+  } catch (err) {
+    console.error("Error al parsear meta:", err);
+    return {
       tradeeu: {
         teams: "",
         correo: "",
@@ -20,42 +99,31 @@ function safeParseMeta(meta) {
         DID_Voiso: { correo: "", contraseña: "" },
         Voicespin: { agent: "", ext: "", secret_extension: "" },
         omni: { usuario: "", contraseña: "" },
-        ...meta.tradeeu,
-        DID_Voiso: { ...meta.tradeeu?.DID_Voiso },
-        Voicespin: { ...meta.tradeeu?.Voicespin },
-        omni: { ...meta.tradeeu?.omni },
+        crm: { correo: "", contraseña: "" },
+        winauth: "",
       },
-      ALGOBI: {
-        teams: "",
-        correo: "",
-        contraseña: "",
-        DID_Voiso: { correo: "", contraseña: "" },
-        Voicespin: { agent: "", ext: "", secret_extension: "" }, 
-        omni: { usuario: "", contraseña: "" },
-        ...meta.ALGOBI,
-        DID_Voiso: { ...meta.ALGOBI?.DID_Voiso },
-        Voicespin: { ...meta.ALGOBI?.Voicespin }, 
-        omni: { ...meta.ALGOBI?.omni },
-      },
-      CAPITALIX: {
+      algobi: {
         teams: "",
         correo: "",
         contraseña: "",
         DID_Voiso: { correo: "", contraseña: "" },
         Voicespin: { agent: "", ext: "", secret_extension: "" },
-        ...meta.CAPITALIX,
-        DID_Voiso: { ...meta.CAPITALIX?.DID_Voiso },
-        Voicespin: { ...meta.CAPITALIX?.Voicespin },
+        omni: { usuario: "", contraseña: "" },
+        crm: { correo: "", contraseña: "" },
+        winauth: "",
+      },
+      capitalix: {
+        teams: "",
+        correo: "",
+        contraseña: "",
+        DID_Voiso: { correo: "", contraseña: "" },
+        Voicespin: { agent: "", ext: "", secret_extension: "" },
+        crm: { correo: "", contraseña: "" },
+        winauth: "",
       },
     };
-
-    return normalized;
-  } catch {
-    return {};
   }
 }
-
-
 
 router.post("/register", async (req, res) => {
   try {

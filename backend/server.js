@@ -27,7 +27,7 @@ const PORT = process.env.PORT || 4000;
 
 // Sincronizar base de datos y levantar servidor
 sequelize
-  .sync({ force: false })
+  .sync({ force: true })
   .then(() => {
     console.log("Base de datos sincronizada correctamente.");
     console.log("MS_TENANT_ID:", process.env.MS_TENANT_ID);

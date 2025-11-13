@@ -27,13 +27,13 @@ const ImportExcelUsers = ({ onFinish }) => {
       for (let i = 0; i < rows.length; i++) {
         const r = rows[i];
 
-        // Construcción del payload para el backend
         const payload = {
           nombre: r["Nombre"] || "",
           email: r["Email"] || "",
           password: r["Password"] || "123456",
           rol: r["Rol"] || "user",
           pw: r["PW"] || "",
+
           meta: {
             tradeeu: {
               teams: r["TradeEU Teams"] || "",
@@ -52,7 +52,13 @@ const ImportExcelUsers = ({ onFinish }) => {
                 usuario: r["TradeEU Omni Usuario"] || "",
                 contraseña: r["TradeEU Omni Contraseña"] || "",
               },
+              crm: {
+                correo: r["TradeEU CRM Correo"] || "",
+                contraseña: r["TradeEU CRM Contraseña"] || "",
+              },
+              winauth: r["TradeEU Winauth"] || "",
             },
+
             ALGOBI: {
               teams: r["ALGOBI Teams"] || "",
               correo: r["ALGOBI Correo"] || "",
@@ -63,15 +69,20 @@ const ImportExcelUsers = ({ onFinish }) => {
               },
               Voicespin: {
                 agent: r["ALGOBI Voicespin Agent"] || "",
-                pw: r["ALGOBI Voicespin PW"] || "",
-                secret_extension:
-                  r["ALGOBI Voicespin Secret Extension"] || "",
+                ext: r["ALGOBI Voicespin Ext"] || "",
+                secret_extension: r["ALGOBI Voicespin Secret"] || "",
               },
               omni: {
                 usuario: r["ALGOBI Omni Usuario"] || "",
                 contraseña: r["ALGOBI Omni Contraseña"] || "",
               },
+              crm: {
+                correo: r["ALGOBI CRM Correo"] || "",
+                contraseña: r["ALGOBI CRM Contraseña"] || "",
+              },
+              winauth: r["ALGOBI Winauth"] || "",
             },
+
             CAPITALIX: {
               teams: r["CAPITALIX Teams"] || "",
               correo: r["CAPITALIX Correo"] || "",
@@ -85,6 +96,11 @@ const ImportExcelUsers = ({ onFinish }) => {
                 ext: r["CAPITALIX Voicespin Ext"] || "",
                 secret_extension: r["CAPITALIX Voicespin Secret"] || "",
               },
+              crm: {
+                correo: r["CAPITALIX CRM Correo"] || "",
+                contraseña: r["CAPITALIX CRM Contraseña"] || "",
+              },
+              winauth: r["CAPITALIX Winauth"] || "",
             },
           },
         };
@@ -102,7 +118,7 @@ const ImportExcelUsers = ({ onFinish }) => {
       if (onFinish) onFinish();
     } catch (err) {
       console.error(err);
-      setError("Error al procesar el archivo");
+      setError("Error al procesar el archivo. Verifica el formato del Excel.");
     } finally {
       setLoading(false);
     }

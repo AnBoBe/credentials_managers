@@ -26,8 +26,8 @@ const Home = ({ userRole, setUserRole }) => {
 const [form, setForm] = useState({
   nombre: "",
   email: "",
-  rol: "user",
   pw: "",
+  rol: "user",
   meta: {
     tradeeu: {
       teams: "",
@@ -35,25 +35,32 @@ const [form, setForm] = useState({
       contraseña: "",
       DID_Voiso: { correo: "", contraseña: "" },
       Voicespin: { agent: "", ext: "", secret_extension: "" },
-      omni: { usuario: "", contraseña: "" }
+      omni: { usuario: "", contraseña: "" },
+      crm: { correo: "", contraseña: "" },
+      winauth: "",
     },
     ALGOBI: {
       teams: "",
       correo: "",
       contraseña: "",
       DID_Voiso: { correo: "", contraseña: "" },
-      Voicespin: { agent: "", pw: "", secret_extension: "" }, 
-      omni: { usuario: "", contraseña: "" }
+      Voicespin: { agent: "", ext: "", secret_extension: "" },
+      omni: { usuario: "", contraseña: "" },
+      winauth: "",
     },
     CAPITALIX: {
       teams: "",
       correo: "",
       contraseña: "",
       DID_Voiso: { correo: "", contraseña: "" },
-      Voicespin: { agent: "", ext: "", secret_extension: "" }
-    }
-  }
+      Voicespin: { agent: "", ext: "", secret_extension: "" },
+      crm: { correo: "", contraseña: "" },
+     
+    },
+  },
 });
+
+
 
 
 
@@ -142,33 +149,55 @@ const submitCreate = async () => {
     return;
   }
 
-
   setCreating(true);
   try {
     const payload = {
       nombre: form.nombre,
       email: form.email,
-      password: form.password || null, 
+      password: form.password || null,
       rol: form.rol,
       pw: form.pw,
-      meta: form.meta
+      meta: form.meta,
     };
 
     await createUser(payload);
     await loadUsers();
     setShowCreate(false);
 
-    // Limpiar formulario
+    // Limpiar formulario (INCLUYE winauth en cada bloque)
     setForm({
       nombre: "",
       email: "",
       rol: "user",
       pw: "",
       meta: {
-        tradeeu: { teams: "", correo: "", contraseña: "", DID_Voiso: { correo: "", contraseña: "" }, Voicespin: { agent: "", ext: "", secret_extension: "" }, omni: { usuario: "", contraseña: "" } },
-        ALGOBI: { teams: "", correo: "", contraseña: "", DID_Voiso: { correo: "", contraseña: "" }, omni: { usuario: "", contraseña: "" } },
-        CAPITALIX: { teams: "", correo: "", contraseña: "", DID_Voiso: { correo: "", contraseña: "" }, Voicespin: { agent: "", ext: "", secret_extension: "" } }
-      }
+        tradeeu: {
+          teams: "",
+          correo: "",
+          contraseña: "",
+          DID_Voiso: { correo: "", contraseña: "" },
+          Voicespin: { agent: "", ext: "", secret_extension: "" },
+          omni: { usuario: "", contraseña: "" },
+          winauth: "", // <--- NUEVO CAMPO
+        },
+        ALGOBI: {
+          teams: "",
+          correo: "",
+          contraseña: "",
+          DID_Voiso: { correo: "", contraseña: "" },
+          Voicespin: { agent: "", ext: "", secret_extension: "" },
+          omni: { usuario: "", contraseña: "" },
+          winauth: "", // <--- NUEVO CAMPO
+        },
+        CAPITALIX: {
+          teams: "",
+          correo: "",
+          contraseña: "",
+          DID_Voiso: { correo: "", contraseña: "" },
+          Voicespin: { agent: "", ext: "", secret_extension: "" },
+          winauth: "", // <--- NUEVO CAMPO
+        },
+      },
     });
   } catch (err) {
     console.error(err);
@@ -177,6 +206,7 @@ const submitCreate = async () => {
     setCreating(false);
   }
 };
+
  
 
 const handleLogout = () => {
@@ -299,7 +329,7 @@ const handleLogout = () => {
 
     {/* Teams, correo, contraseña */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-      <h4 className="font-medium">teams</h4>
+   
       <input
         placeholder="correo"
         value={form.meta.tradeeu.correo}
@@ -395,106 +425,124 @@ const handleLogout = () => {
         />
       </div>
     </div>
+    {/* WinAuth */}
+<div className="mt-2">
+  <h4 className="font-medium">WinAuth</h4>
+  <div className="flex items-center gap-2 mt-2">
+    <input
+      type="text"
+      placeholder="WinAuth"
+      value={form.meta.tradeeu.winauth || ""}
+      onChange={e => handleFormChange("meta.tradeeu.winauth", e.target.value)}
+      className="border px-2 py-1 rounded flex-1"
+    />
+    
+  </div>
+</div>
+
   </div>
 
- { /* ALGOBI */}
-<div className="border p-4 rounded">
-  <h3 className="text-lg font-semibold mb-2 text-green-700">ALGOBI</h3>
 
-  <label className="block text-sm font-medium">Correo</label>
-  <input
-    type="text"
-    value={form.meta.ALGOBI.correo}
-    onChange={(e) =>
-      setForm({
-        ...form,
-        meta: {
-          ...form.meta,
-          ALGOBI: { ...form.meta.ALGOBI, correo: e.target.value },
-        },
-      })
-    }
-    className="w-full border rounded px-2 py-1 mb-2"
-  />
+ {/* ALGOBI */}
+<div className="border p-4 rounded mt-6">
+  <h3 className="text-lg font-semibold text-green-700">ALGOBI</h3>
 
-  <label className="block text-sm font-medium">Contraseña</label>
-  <input
-    type="password"
-    value={form.meta.ALGOBI.contraseña}
-    onChange={(e) =>
-      setForm({
-        ...form,
-        meta: {
-          ...form.meta,
-          ALGOBI: { ...form.meta.ALGOBI, contraseña: e.target.value },
-        },
-      })
-    }
-    className="w-full border rounded px-2 py-1 mb-2"
-  />
+  {/* Teams, correo, contraseña */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+  
+    <input
+      placeholder="Correo"
+      value={form.meta.ALGOBI.correo}
+      onChange={(e) => handleFormChange("meta.ALGOBI.correo", e.target.value)}
+      className="border px-2 py-1 rounded"
+    />
+    <input
+      placeholder="Contraseña"
+      type="password"
+      value={form.meta.ALGOBI.contraseña}
+      onChange={(e) => handleFormChange("meta.ALGOBI.contraseña", e.target.value)}
+      className="border px-2 py-1 rounded"
+    />
+  </div>
+
+  {/* DID (Voiso) */}
+  <div className="mt-2">
+    <h4 className="font-medium">DID (Voiso)</h4>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+      <input
+        placeholder="Correo"
+        value={form.meta.ALGOBI.DID_Voiso?.correo || ""}
+        onChange={(e) => handleFormChange("meta.ALGOBI.DID_Voiso.correo", e.target.value)}
+        className="border px-2 py-1 rounded"
+      />
+      <input
+        placeholder="Contraseña"
+        type="password"
+        value={form.meta.ALGOBI.DID_Voiso?.contraseña || ""}
+        onChange={(e) => handleFormChange("meta.ALGOBI.DID_Voiso.contraseña", e.target.value)}
+        className="border px-2 py-1 rounded"
+      />
+    </div>
+  </div>
 
   {/* Voicespin */}
-  <h4 className="text-md font-semibold mt-3 mb-1">Voicespin</h4>
+  <div className="mt-2">
+    <h4 className="font-medium">Voicespin</h4>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+      <input
+        placeholder="Agent"
+        value={form.meta.ALGOBI.Voicespin?.agent || ""}
+        onChange={(e) => handleFormChange("meta.ALGOBI.Voicespin.agent", e.target.value)}
+        className="border px-2 py-1 rounded"
+      />
+      <input
+        placeholder="PW"
+        value={form.meta.ALGOBI.Voicespin?.pw || ""}
+        onChange={(e) => handleFormChange("meta.ALGOBI.Voicespin.pw", e.target.value)}
+        className="border px-2 py-1 rounded"
+      />
+      <input
+        placeholder="Secret Extension"
+        value={form.meta.ALGOBI.Voicespin?.secret_extension || ""}
+        onChange={(e) => handleFormChange("meta.ALGOBI.Voicespin.secret_extension", e.target.value)}
+        className="border px-2 py-1 rounded"
+      />
+    </div>
+  </div>
 
-  <label className="block text-sm font-medium">Agent</label>
-  <input
-    type="text"
-    value={form.meta.ALGOBI.Voicespin.agent}
-    onChange={(e) =>
-      setForm({
-        ...form,
-        meta: {
-          ...form.meta,
-          ALGOBI: {
-            ...form.meta.ALGOBI,
-            Voicespin: { ...form.meta.ALGOBI.Voicespin, agent: e.target.value },
-          },
-        },
-      })
-    }
-    className="w-full border rounded px-2 py-1 mb-2"
-  />
+  {/* Omni */}
+  <div className="mt-2">
+    <h4 className="font-medium">Omni</h4>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+      <input
+        placeholder="Usuario"
+        value={form.meta.ALGOBI.omni?.usuario || ""}
+        onChange={(e) => handleFormChange("meta.ALGOBI.omni.usuario", e.target.value)}
+        className="border px-2 py-1 rounded"
+      />
+      <input
+        placeholder="Contraseña"
+        type="password"
+        value={form.meta.ALGOBI.omni?.contraseña || ""}
+        onChange={(e) => handleFormChange("meta.ALGOBI.omni.contraseña", e.target.value)}
+        className="border px-2 py-1 rounded"
+      />
+    </div>
+  </div>
 
-  <label className="block text-sm font-medium">PW</label>
-  <input
-    type="password"
-    value={form.meta.ALGOBI.Voicespin.pw}
-    onChange={(e) =>
-      setForm({
-        ...form,
-        meta: {
-          ...form.meta,
-          ALGOBI: {
-            ...form.meta.ALGOBI,
-            Voicespin: { ...form.meta.ALGOBI.Voicespin, pw: e.target.value },
-          },
-        },
-      })
-    }
-    className="w-full border rounded px-2 py-1 mb-2"
-  />
-
-  <label className="block text-sm font-medium">Secret Extension</label>
-  <input
-    type="password"
-    value={form.meta.ALGOBI.Voicespin.secret_extension}
-    onChange={(e) =>
-      setForm({
-        ...form,
-        meta: {
-          ...form.meta,
-          ALGOBI: {
-            ...form.meta.ALGOBI,
-            Voicespin: {
-              ...form.meta.ALGOBI.Voicespin,
-              secret_extension: e.target.value,
-            },
-          },
-        },
-      })
-    }
-    className="w-full border rounded px-2 py-1 mb-2"
-  />
+  {/* WinAuth */}
+  <div className="mt-2">
+    <h4 className="font-medium">WinAuth</h4>
+    <div className="flex items-center gap-2 mt-2">
+      <input
+        type="text"
+        placeholder="WinAuth"
+        value={form.meta.ALGOBI.winauth || ""}
+        onChange={(e) => handleFormChange("meta.ALGOBI.winauth", e.target.value)}
+        className="border px-2 py-1 rounded flex-1"
+      />
+    </div>
+  </div>
 </div>
 
   {/* CAPITALIX */}
