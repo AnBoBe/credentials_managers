@@ -37,7 +37,7 @@ const CopyableField = ({
         </span>
 
         <div className="flex items-center gap-1 ml-2">
-          {/* 🔒 Botón de mostrar/ocultar solo si no está oculto */}
+          {/* Botón de mostrar/ocultar solo si no está oculto */}
           {isPassword && !hideToggle && (
             <button
               onClick={() => setVisible(!visible)}

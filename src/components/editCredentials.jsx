@@ -11,7 +11,7 @@ const EditCredentials = ({ userRole, setUserRole }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // 🔹 Cargar usuario por ID
+  // Cargar usuario por ID
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -26,12 +26,12 @@ const EditCredentials = ({ userRole, setUserRole }) => {
           }
         }
 
-        // 🔹 Normalizar claves a minúsculas
+        // Normalizar claves a minúsculas
         const normalizedKeys = Object.fromEntries(
           Object.entries(meta).map(([key, value]) => [key.toLowerCase(), value])
         );
 
-        // 🔹 Normalización garantizando estructura completa
+        // Normalización garantizando estructura completa
         const normalizedMeta = {
           tradeeu: {
             teams: normalizedKeys.tradeeu?.teams || "",
@@ -82,7 +82,7 @@ const EditCredentials = ({ userRole, setUserRole }) => {
     loadUser();
   }, [id, navigate]);
 
-  // 🔹 Actualizar campos
+  // Actualizar campos
   const handleChange = (path, value) => {
     setForm((prev) => {
       const updated = structuredClone(prev);
@@ -97,14 +97,14 @@ const EditCredentials = ({ userRole, setUserRole }) => {
     });
   };
 
-  // 🔹 Guardar datos sin borrar lo que no se modificó
+  // Guardar datos sin borrar lo que no se modificó
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form) return;
     setSaving(true);
 
     try {
-      // 🔸 Crear meta con estructura garantizada
+      // Crear meta con estructura garantizada
       const safeMeta = {
         tradeeu: {
           ...form.meta.tradeeu,
@@ -112,7 +112,7 @@ const EditCredentials = ({ userRole, setUserRole }) => {
         },
         algobi: {
           ...form.meta.algobi,
-          crm: form.meta.algobi.crm || { correo: "", contraseña: "" }, // ✅ asegurado
+          crm: form.meta.algobi.crm || { correo: "", contraseña: "" }, 
         },
         capitalix: {
           ...form.meta.capitalix,
@@ -141,7 +141,7 @@ const EditCredentials = ({ userRole, setUserRole }) => {
   if (loading) return <div className="p-6">Cargando...</div>;
   if (!form) return <div className="p-6">No se encontró el usuario</div>;
 
-  // 🔹 Render dinámico de inputs
+  // Render dinámico de inputs
   const renderInputs = (obj, prefix = "") => {
     return Object.entries(obj)
       .filter(([key]) => key !== "teams" && key !== "email")

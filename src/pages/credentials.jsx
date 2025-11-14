@@ -42,14 +42,14 @@ const Credentials = ({ userRole, setUserRole }) => {
           }
         }
 
-        // ✅ Asegurar compatibilidad de mayúsculas/minúsculas
+        // Asegurar compatibilidad de mayúsculas/minúsculas
         const normalizedMeta = {
           tradeeu: meta.tradeeu || meta.TRADEEU || {},
           algobi: meta.algobi || meta.ALGOBI || {},
           capitalix: meta.capitalix || meta.CAPITALIX || {},
         };
 
-        // ✅ Forzar estructura de objetos internos
+        // Forzar estructura de objetos internos
         const ensureCRM = (crm) => {
           if (!crm || typeof crm !== "object") return { correo: "", contraseña: "" };
           return {
@@ -84,7 +84,6 @@ const Credentials = ({ userRole, setUserRole }) => {
               secret_extension: "",
             },
             omni: normalizedMeta.algobi.omni || { usuario: "", contraseña: "" },
-            // ✅ Forzar siempre crm.algobi a tener correo y contraseña
             crm: ensureCRM(normalizedMeta.algobi.crm),
             winauth: normalizedMeta.algobi.winauth || "",
           },
@@ -99,7 +98,7 @@ const Credentials = ({ userRole, setUserRole }) => {
               secret_extension: "",
             },
             crm: ensureCRM(normalizedMeta.capitalix.crm),
-            // 🚫 Sin winauth en Capitalix
+ 
           },
         };
 
@@ -126,7 +125,7 @@ const Credentials = ({ userRole, setUserRole }) => {
 
   const { meta } = user;
 
-  // 🔁 Renderiza los datos recursivamente
+  // Renderiza los datos recursivamente
   const renderData = (obj) => {
     if (!obj || Object.keys(obj).length === 0)
       return <p className="text-gray-400 text-sm">Sin datos</p>;

@@ -164,7 +164,7 @@ const submitCreate = async () => {
     await loadUsers();
     setShowCreate(false);
 
-    // Limpiar formulario (INCLUYE winauth en cada bloque)
+    // Limpiar formulario
     setForm({
       nombre: "",
       email: "",
@@ -178,7 +178,7 @@ const submitCreate = async () => {
           DID_Voiso: { correo: "", contraseña: "" },
           Voicespin: { agent: "", ext: "", secret_extension: "" },
           omni: { usuario: "", contraseña: "" },
-          winauth: "", // <--- NUEVO CAMPO
+          winauth: "", 
         },
         ALGOBI: {
           teams: "",
@@ -187,7 +187,7 @@ const submitCreate = async () => {
           DID_Voiso: { correo: "", contraseña: "" },
           Voicespin: { agent: "", ext: "", secret_extension: "" },
           omni: { usuario: "", contraseña: "" },
-          winauth: "", // <--- NUEVO CAMPO
+          winauth: "", 
         },
         CAPITALIX: {
           teams: "",
@@ -195,7 +195,7 @@ const submitCreate = async () => {
           contraseña: "",
           DID_Voiso: { correo: "", contraseña: "" },
           Voicespin: { agent: "", ext: "", secret_extension: "" },
-          winauth: "", // <--- NUEVO CAMPO
+          
         },
       },
     });
@@ -447,7 +447,7 @@ const handleLogout = () => {
 <div className="border p-4 rounded mt-6">
   <h3 className="text-lg font-semibold text-green-700">ALGOBI</h3>
 
-  {/* Teams, correo, contraseña */}
+ 
   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
   
     <input
