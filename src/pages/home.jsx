@@ -325,7 +325,7 @@ const handleLogout = () => {
          <div>
   {/* TRADEEU */}
   <div>
-    <h3 className="text-lg font-semibold">tradeeu</h3>
+    <h3 className="text-lg font-semibold text-blue-700">tradeeu</h3>
 
     {/* Teams, correo, contraseña */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
@@ -547,7 +547,7 @@ const handleLogout = () => {
 
   {/* CAPITALIX */}
   <div className="mt-6">
-    <h3 className="text-lg font-semibold">CAPITALIX (opcional)</h3>
+    <h3 className="text-lg font-semibold text-cyan-700">CAPITALIX (opcional)</h3>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
       <h4 className="font-medium">teams</h4>

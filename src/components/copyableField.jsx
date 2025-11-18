@@ -38,15 +38,7 @@ const CopyableField = ({
 
         <div className="flex items-center gap-1 ml-2">
           {/* Botón de mostrar/ocultar solo si no está oculto */}
-          {isPassword && !hideToggle && (
-            <button
-              onClick={() => setVisible(!visible)}
-              className="p-1 hover:text-blue-600 transition"
-              title={visible ? "Ocultar" : "Mostrar"}
-            >
-              {visible ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          )}
+          
 
           <button
             onClick={handleCopy}
