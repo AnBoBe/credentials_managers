@@ -10,12 +10,35 @@ const CopyableField = ({
   const [visible, setVisible] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async () => {
-    if (!value) return;
-    await navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
+const handleCopy = () => {
+  if (!value) return;
+
+  // Usar Clipboard API si existe
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(value)
+      .then(() => showCopied())
+      .catch(() => fallbackCopy());
+  } else {
+    fallbackCopy();
+  }
+};
+
+const fallbackCopy = () => {
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+  showCopied();
+};
+
+const showCopied = () => {
+  setCopied(true);
+  setTimeout(() => setCopied(false), 1500);
+};
 
   const isPassword = type === "password";
 

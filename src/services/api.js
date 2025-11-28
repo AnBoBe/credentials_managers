@@ -1,4 +1,4 @@
-const API_BASE = `${import.meta.env.VITE_API_URL || "http://192.168.1.239:4000"}/api`;
+const API_BASE = `${import.meta.env.VITE_API_URL || "https://192.168.1.239:4000"}/api`;
 
 function getAuthHeader() {
   const token = localStorage.getItem("token");

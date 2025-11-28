@@ -21,7 +21,7 @@ const Credentials = ({ userRole, setUserRole }) => {
       try {
         const res = await fetch(
           `${
-            import.meta.env.VITE_API_URL || "http://192.168.1.239:4000"
+            import.meta.env.VITE_API_URL || "https://192.168.1.239:4000"
           }/api/user/${id}`,
           {
             headers: {

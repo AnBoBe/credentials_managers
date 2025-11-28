@@ -50,7 +50,7 @@ const EditCredentials = ({ userRole, setUserRole }) => {
             DID_Voiso: normalizedKeys.algobi?.DID_Voiso || { correo: "", contraseña: "" },
             Voicespin: normalizedKeys.algobi?.Voicespin || { agent: "", ext: "", secret_extension: "" },
             omni: normalizedKeys.algobi?.omni || { usuario: "", contraseña: "" },
-            crm: normalizedKeys.algobi?.crm || { correo: "", contraseña: "" }, // ✅ forzado
+            crm: normalizedKeys.algobi?.crm || { correo: "", contraseña: "" }, 
             winauth: normalizedKeys.algobi?.winauth || "",
           },
           capitalix: {

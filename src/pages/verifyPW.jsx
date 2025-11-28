@@ -17,7 +17,7 @@ const VerifyPW = ({ setUserRole }) => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://192.168.1.239:4000/api/user/verify-pw", {
+      const res = await fetch("https://192.168.1.239:4000/api/user/verify-pw", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
